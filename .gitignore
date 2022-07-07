@@ -1,0 +1,13 @@
+docker-compose.override.yaml
+
+.env
+
+/frontend
+/backend
+/database
+/documentation
+
+/.idea
+/.vscode
+
+sudo-pass

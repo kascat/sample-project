@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  s_project_db:
+    container_name: ${CONTAINER_DB_NAME}
+    image: mysql:8
+    volumes:
+      - ./${PROJECT_DB_DIR}/MySQL:/var/lib/mysql
+    ports:
+      - ${CONTAINER_DB_EXTERNAL_PORT}:3306
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CONTAINER_DB_PASSWORD}
+      MYSQL_DATABASE: ${CONTAINER_DB_DATABASE}
+
+  s_project_front:
+    container_name: ${CONTAINER_FRONT_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    image: ${CONTAINER_FRONT_IMAGE}
+    restart: unless-stopped
+    ports:
+      - ${CONTAINER_FRONT_EXTERNAL_PORT}:8080
+    volumes:
+      - ./${PROJECT_FRONT_DIR}:/app
+    command: /bin/sh -c "yarn && quasar build && quasar serve ./dist/spa/ -p 8080"

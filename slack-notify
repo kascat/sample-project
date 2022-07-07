@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+source .env
+
+[[ $SLACK_NOTIFIER_URI ]] && SLACK_URI=$SLACK_NOTIFIER_URI || SLACK_URI=""
+
+INPUT_TYPE=${1/--/}
+
+if [[ $INPUT_TYPE == 'json' ]]; then
+  JSON="${2}"
+else
+  input=$(echo ${1:0:1500} | sed 's/"/\\"/g')
+  JSON="{\"text\": \"${input}\", \"link_names\": \"1\"}"
+fi
+
+if [[ -n $SLACK_URI ]]; then
+  echo "Sending Slack notification..."
+  curl -s -X POST \
+    -H "Content-type:application/json" \
+    -d "${JSON}" $SLACK_URI > /dev/null 2>&1
+else
+  echo "Falha ao enviar notificação para o Slack. URI não definida."
+fi

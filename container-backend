@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Este arquivo pode ser usado para executar comandos dentro do container backend
+# Ex: ./container-backend ls
+
+source .env
+
+COMMAND=$*
+
+docker exec -it $CONTAINER_BACK_NAME $COMMAND
+
+NEW_FILES="?? "
+
+GIT_STATUS=`cd $PROJECT_BACK_DIR && git status -s | grep "$NEW_FILES"`
+
+# Concederá permissão de modificação se tiver novos arquivos
+if [[ $GIT_STATUS ]]; then
+  ./chown-files.sh $PROJECT_BACK_DIR
+  docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/storage
+  docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/bootstrap/cache
+fi
