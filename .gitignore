@@ -2,10 +2,10 @@ docker-compose.override.yaml
 
 .env
 
-/frontend
-/backend
+#/frontend
+#/backend
 /database
-/documentation
+#/documentation
 
 /.idea
 /.vscode
