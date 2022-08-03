@@ -84,7 +84,7 @@ O comando abaixo pode ser utilizado para execução do deploy em homolog,
 podendo passar as flags `--all`, `--backend` ou `--frontend` realizando o deploy do respectivo ambiente:
 
 ```shell
-deploy-homolog.sh --all
+deploy.sh --all
 ```
 
 ---
