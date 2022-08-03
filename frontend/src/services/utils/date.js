@@ -4,8 +4,8 @@ export const parseDate = datetime => {
 
     const splitedDate = splitedDatetime[0].split('/')
 
-      splitedDatetime[1] = splitedDatetime[1] ? ` ${splitedDatetime[1]}` : ''
-      return Date.parse(`${splitedDate[2]}-${splitedDate[1]}-${splitedDate[0]}${splitedDatetime[1]}`)
+    splitedDatetime[1] = splitedDatetime[1] ? ` ${splitedDatetime[1]}` : ''
+    return Date.parse(`${splitedDate[2]}-${splitedDate[1]}-${splitedDate[0]}${splitedDatetime[1]}`)
   }
 
   return Date.parse(datetime)

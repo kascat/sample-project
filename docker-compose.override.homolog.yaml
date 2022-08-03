@@ -21,7 +21,7 @@ services:
     image: ${CONTAINER_FRONT_IMAGE}
     restart: unless-stopped
     ports:
-      - ${CONTAINER_FRONT_EXTERNAL_PORT}:8080
+      - ${CONTAINER_FRONT_EXTERNAL_PORT}:${CONTAINER_FRONT_EXTERNAL_PORT}
     volumes:
       - ./${PROJECT_FRONT_DIR}:/app
-    command: /bin/sh -c "yarn && quasar build && quasar serve ./dist/spa/ -p 8080"
+    command: /bin/sh -c "yarn && quasar build && quasar serve ./dist/spa/ -p ${CONTAINER_FRONT_EXTERNAL_PORT}"

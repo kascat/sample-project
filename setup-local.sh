@@ -2,11 +2,11 @@
 
 echo "::::: SETUP STARTED :::::"
 
-#cp .env.example .env
-
-echo "Antes de prosseguir realize a cópia do arquivo .env.example para .env (da pasta principal) e configure adequadamente as variáveis."
+echo "Antes de prosseguir realize a configuração das variáveis no arquivo .env.example (da pasta principal)."
 
 read -p "Confirma inicio do setup? ('Ctrl + C' pata cancelar)"
+
+cp .env.example .env
 
 source .env
 
@@ -26,6 +26,7 @@ sed -i "s|@FRONT_PORT|$CONTAINER_FRONT_EXTERNAL_PORT|;" $PROJECT_BACK_DIR/.env
 
 cp $PROJECT_FRONT_DIR/.env.example $PROJECT_FRONT_DIR/.env
 sed -i "s|@API_PORT|$CONTAINER_BACK_EXTERNAL_PORT|;" $PROJECT_FRONT_DIR/.env
+sed -i "s|@FRONT_PORT|$CONTAINER_FRONT_EXTERNAL_PORT|;" $PROJECT_FRONT_DIR/.env
 
 cp docker-compose.override.development.yaml docker-compose.override.yaml
 

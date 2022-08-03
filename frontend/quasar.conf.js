@@ -77,13 +77,14 @@ module.exports = configure(function (ctx) {
       env: {
         NODE_ENV: process.env.NODE_ENV,
         API_URL: process.env.API_URL,
+        FRONT_URL: process.env.FRONT_URL,
       }
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,
-      port: 8080,
+      port: process.env.DEV_SERVER_PORT,
       open: false // opens browser window automatically
     },
 

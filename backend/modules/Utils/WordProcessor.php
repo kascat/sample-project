@@ -32,43 +32,57 @@ class WordProcessor
         array $rowsToReplace = [],
         array $blocksToReplace = [],
     ) {
-        $templateProcessor = new TemplateProcessor($templateUrl);
-        $templateProcessor->setValues($simpleValuesToReplace);
+        $imageValues = [];
+        $simpleValues = [];
+        foreach ($simpleValuesToReplace as $key => $value) {
+            if (str_contains($key, '+')) {
+                $imageValues[str_replace('+', '', $key)] = $value;
+            } else {
+                $simpleValues[$key] = $value;
+            }
+        }
 
-        foreach ($imagesToReplace as $key => $imageValue) {
-            $templateProcessor->setImageValue($key, $imageValue);
+        $templateProcessor = new TemplateProcessor($templateUrl);
+        $templateProcessor->setValues($simpleValues);
+
+        foreach (array_merge($imageValues, $imagesToReplace) as $key => $imageValue) {
+            if ($imageValue) {
+                $templateProcessor->setImageValue($key, $imageValue);
+            }
         }
 
         foreach ($blocksToReplace as $key => $blockValue) {
             $templateProcessor->cloneBlock($key, 0, true, false, $blockValue);
         }
 
-        foreach ($rowsToReplace as $key => $rowValue) {
-            $templateProcessor->cloneRowAndSetValues($key, $rowValue);
+        foreach ($rowsToReplace as $key => $value) {
+            $imageValues = [];
+            $rowItems = [];
+            foreach ($value as $rowKey => $rowValue) {
+                foreach ($rowValue as $propKey => $propValue) {
+                    if (str_contains($propKey, '+')) {
+                        $imageValues[$rowKey][str_replace('+', '', $propKey)] = $propValue;
+                    } else {
+                        $rowItems[$rowKey][$propKey] = $propValue;
+                    }
+                }
+            }
+
+            $templateProcessor->cloneRowAndSetValues($key, $rowItems);
+
+            foreach ($imageValues as $rowKey => $imageItems) {
+                foreach ($imageItems as $imageKey => $imageValue) {
+                    $currentKey = "$imageKey#" . $rowKey+1;
+                    if ($imageValue) {
+                        $templateProcessor->setImageValue($currentKey, $imageValue);
+                    }
+                }
+            }
         }
 
         $filename = $fileToSave ?: (Str::uuid() . '.docx');
         $templateProcessor->saveAs("/tmp/$filename");
 
         return "/tmp/$filename";
-    }
-
-    /**
-     * @deprecated
-     * TODO: remover função em breve e remover dependência php tcpdf
-     */
-    public static function saveAsPdf(string $fileUrl)
-    {
-        Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
-        Settings::setPdfRendererPath(base_path().'/vendor/tecnickcom/tcpdf');
-
-        $phpWord = IOFactory::load($fileUrl, 'Word2007');
-
-        $extension = array_reverse(explode('.', $fileUrl))[0];
-        $pdfFilePath = str_replace(".$extension", '.pdf', $fileUrl);
-
-        $phpWord->save($pdfFilePath, 'PDF');
-
-        return $pdfFilePath;
     }
 }
