@@ -2,12 +2,16 @@
 
 namespace Users;
 
+use Kascat\EasyModule\Core\Response;
+
 /**
  * Trait UserResponse
  * @package Users
  */
 trait UserResponse
 {
+    use Response;
+
     /**
      * @param array $data
      * @param int $statusCode
