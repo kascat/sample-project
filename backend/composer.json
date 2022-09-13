@@ -2,8 +2,9 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": ["Sample project", "framework", "laravel"],
     "license": "MIT",
+    "version": "1.0",
     "require": {
         "php": "^8.0",
         "doctrine/dbal": "^3.3",
