@@ -44,8 +44,8 @@
     <div align="right">
       <q-btn
         outline
-        :label="!route.params.id ? 'Criar permissão' : 'Editar permissão'"
-        :icon="!route.params.id ? 'save' : 'edit'"
+        label="Salvar"
+        icon="save"
         type="submit"
         color="primary"
         :disable="saving"
@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   createPermission,
@@ -64,6 +64,7 @@ import {
   getPermission,
   getAllPermission
 } from 'src/services/permission/permission-api'
+import { loggedUser } from 'boot/user'
 import { Notify, Loading } from 'quasar'
 import { formatResponseError } from "src/services/utils/error-formatter";
 import { t } from 'src/services/utils/i18n'
@@ -104,12 +105,15 @@ async function submitFunction() {
         type: 'positive'
       })
 
-      router.push({ name: 'permissions' })
+      await router.push({ name: 'permissions' })
+      if (loggedUser?.permission_id === permission.value?.id) {
+        router.go()
+      }
     }
   } catch (error) {
     Notify.create({
-        message: formatResponseError(error) || 'Falha ao salvar permissão',
-        type: 'negative'
+      message: formatResponseError(error) || 'Falha ao salvar permissão',
+      type: 'negative'
     })
   }
   saving.value = false
