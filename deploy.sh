@@ -12,6 +12,8 @@ if [[ ! " ${SCOPES[@]} " =~ " ${SCOPE} " ]]; then
   exit 1
 fi
 
+docker-compose up -d
+
 if [[ $SCOPE == "root" || $SCOPE == "all" ]]; then
   echo "::::: DEPLOY ROOT STARTED :::::"
   $NOTIFIER ":black_small_square: HOMOLOG ROOT - DEPLOY STARTED"
