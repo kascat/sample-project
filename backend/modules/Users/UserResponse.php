@@ -13,7 +13,7 @@ trait UserResponse
      * @param int $statusCode
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseToLogin(array $data = [], int $statusCode = 200)
+    public function responseToLogin($data = [], int $statusCode = 200)
     {
         return response()->json($data, $statusCode);
     }

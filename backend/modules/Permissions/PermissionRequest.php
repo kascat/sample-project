@@ -2,7 +2,7 @@
 
 namespace Permissions;
 
-use App\Http\Requests\Request;
+use Kascat\EasyModule\Core\Request;
 
 /**
  * Class PermissionRequest

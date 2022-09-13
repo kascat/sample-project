@@ -7,7 +7,6 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\Finder\Finder;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -27,7 +26,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string|null
      */
-    // protected $namespace = 'App\\Http\\Controllers';
+     protected $namespace = 'App\\Http\\Controllers';
 
     /**
      * Define your route model bindings, pattern filters, etc.
@@ -47,37 +46,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
-
-            $this->mapModuleRoutes();
         });
-    }
-
-    /**
-     * Dynamic module routes
-     */
-    protected function mapModuleRoutes()
-    {
-        $finder = new Finder();
-
-        $finder
-            ->files()
-            ->name('api.php')
-            ->name('web.php')
-            ->in(base_path('modules'));
-
-        /** @var \Symfony\Component\Finder\SplFileInfo $file */
-        foreach ($finder as $file) {
-            if ($file->getFilename() === 'api.php') {
-                Route::prefix('api')
-                    ->middleware('api')
-                    ->namespace($this->namespace)
-                    ->group($file->getRealPath());
-            } else {
-                Route::middleware('web')
-                    ->namespace($this->namespace)
-                    ->group($file->getRealPath());
-            }
-        }
     }
 
     /**

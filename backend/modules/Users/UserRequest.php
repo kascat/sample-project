@@ -2,7 +2,7 @@
 
 namespace Users;
 
-use App\Http\Requests\Request;
+use Kascat\EasyModule\Core\Request;
 use Illuminate\Validation\Rules\Password;
 
 /**

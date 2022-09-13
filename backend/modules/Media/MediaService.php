@@ -2,10 +2,10 @@
 
 namespace Media;
 
-use App\Http\Services\Service;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Kascat\EasyModule\Core\Service;
 
 /**
  * Class MediaService

@@ -2,7 +2,7 @@
 
 namespace Permissions;
 
-use App\Http\Services\Service;
+use Kascat\EasyModule\Core\Service;
 
 /**
  * Class PermissionService

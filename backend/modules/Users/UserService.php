@@ -2,12 +2,12 @@
 
 namespace Users;
 
-use App\Http\Services\Service;
 use App\Mail\SendEmailToResetPassword;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Kascat\EasyModule\Core\Service;
 
 /**
  * Class UserService
