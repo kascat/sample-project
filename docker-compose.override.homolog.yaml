@@ -6,6 +6,7 @@ services:
     image: mysql:8
     volumes:
       - ./${PROJECT_DB_DIR}/MySQL:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
     ports:
       - ${CONTAINER_DB_EXTERNAL_PORT}:3306
     restart: unless-stopped
