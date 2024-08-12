@@ -111,17 +111,3 @@ $permission = Permission::create(["name" => "Administrador"])
 
 User::create(["name"=>"The first","email"=>"email@mail.com","password"=>bcrypt("projeto"),"permission_id"=>$permission->id])
 ```
-
----
-
-### Informações gerais
-
-#### Arquivo `pipe`
-
-O arquivo `pipe` na pasta `backend` é um arquivo pipe/FIFO utilizado no projeto para execução de shell script
-a partir do php que utiliza o usuário 'nginx', diretamente no container como usuário 'root'.
-
-Para isso o arquivo `exec-pipe.sh` deve ser executado (terminal ou cron) para começar ouvir
-os scripts que forem chamados.
-
-Para entender melhor esse processo vide `exec-pipe.sh` e pesquise por "Arquivos FIFO".

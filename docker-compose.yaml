@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   s_project_back:
     container_name: ${CONTAINER_BACK_NAME}

@@ -1,8 +1,7 @@
 {
-  "name": "base-project",
-  "version": "1.0",
-  "description": "Base Application",
-  "productName": "Base Application",
+  "name": "sample-project",
+  "description": "Sample Project",
+  "productName": "Sample Project",
   "author": "Fabio Dukievicz <fabiojd47@gmail.com>",
   "private": true,
   "scripts": {
@@ -12,18 +11,19 @@
   "dependencies": {
     "@quasar/extras": "^1.13.2",
     "axios": "^0.21.1",
-    "chart.js": "^3.5.0",
+    "chart.js": "^4.4.2",
     "core-js": "^3.6.5",
     "dotenv": "^16.0.0",
     "quasar": "^2.6.1",
     "vue": "^3.0.0",
+    "vue-chartjs": "^5.3.1",
     "vue-i18n": "^9.0.0-beta.0",
     "vue-router": "^4.0.0",
     "vuex": "^4.0.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
-    "@quasar/app": "^3.3.3",
+    "@quasar/app-webpack": "^3.12.3",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^7.0.0",

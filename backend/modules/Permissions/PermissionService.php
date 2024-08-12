@@ -6,53 +6,44 @@ use Kascat\EasyModule\Core\Service;
 
 /**
  * Class PermissionService
- * @package Permissions
  */
 class PermissionService extends Service
 {
-    /**
-     * @param array $filters
-     * @return array
-     */
-    public function index(array $filters)
+    public function index(array $filters): array
     {
-        $permissionsQuery = PermissionRepository::index($filters);
+        $permissionsQuery = PermissionRepository::defautFiltersQuery($filters);
 
         return self::buildReturn(
             $permissionsQuery
-                ->with(\request()->with ?? [])
-                ->paginate(\request()->perPage)
+                ->with(\request(self::WITH_RELATIONSHIP) ?? [])
+                ->paginate(\request(self::PER_PAGE))
         );
     }
 
-    /**
-     * @param array $data
-     * @return array
-     */
-    public function store(array $data)
+    public function show(Permission $permission): array
     {
-        $permission = Permission::create($data);
+        return self::buildReturn(
+            $permission
+                ->load(\request(self::WITH_RELATIONSHIP) ?? [])
+                ->toArray()
+        );
+    }
+
+    public function store(array $data): array
+    {
+        $permission = Permission::query()->create($data);
 
         return self::buildReturn($permission);
     }
 
-    /**
-     * @param Permission $permission
-     * @param array $data
-     * @return array
-     */
-    public function update(Permission $permission, array $data)
+    public function update(Permission $permission, array $data): array
     {
         $permission->update($data);
 
         return self::buildReturn($permission);
     }
 
-    /**
-     * @param Permission $permission
-     * @return array
-     */
-    public function destroy(Permission $permission)
+    public function destroy(Permission $permission): array
     {
         $permission->delete();
 

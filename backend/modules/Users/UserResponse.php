@@ -2,22 +2,17 @@
 
 namespace Users;
 
+use Illuminate\Http\JsonResponse;
 use Kascat\EasyModule\Core\Response;
 
 /**
  * Trait UserResponse
- * @package Users
  */
 trait UserResponse
 {
     use Response;
 
-    /**
-     * @param array $data
-     * @param int $statusCode
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function responseToLogin($data = [], int $statusCode = 200)
+    public function responseToLogin(array $data = [], int $statusCode = 200): JsonResponse
     {
         return response()->json($data, $statusCode);
     }

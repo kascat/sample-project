@@ -4,138 +4,95 @@ namespace Users;
 
 use App\Http\Controllers\Controller;
 
-/**
- * Class UserController
- * @package Users
- */
 class UserController extends Controller
 {
     use UserResponse;
 
     private UserService $userService;
 
-    /**
-     * UserController constructor.
-     * @param UserService $userService
-     */
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
     }
 
-    /**
-     * @param UserRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login(UserRequest $request)
+    public function login(UserRequest $request): mixed
     {
         $result = $this->userService->login($request->validated());
 
         return $this->response($result['response']);
     }
 
-    /**
-     * @param UserRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout(UserRequest $request)
+    public function logout(UserRequest $request): mixed
     {
         $result = $this->userService->logout($request->bearerToken());
 
         return $this->response($result['response']);
     }
 
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logoutAll()
+    public function logoutAll(): mixed
     {
         $result = $this->userService->logoutAll();
 
         return $this->response($result['response']);
     }
 
-    /**
-     * @return mixed
-     */
-    public function loggedUser()
+    public function loggedUser(): mixed
     {
+        /** @var User $user */
         $user = auth()->user();
-        $user->permission;
+
+        $user->load(User::RELATION_PERMISSION);
 
         return $this->response($user);
     }
 
-    /**
-     * @param UserRequest $request
-     * @return mixed
-     */
-    public function index(UserRequest $request)
+    public function index(UserRequest $request): mixed
     {
         $result = $this->userService->index($request->validated());
 
         return $this->response($result['response'], $result['status']);
     }
 
-    /**
-     * @param UserRequest $request
-     * @return mixed
-     */
-    public function store(UserRequest $request)
+    public function store(UserRequest $request): mixed
     {
         $result = $this->userService->store($request->validated());
 
         return $this->response($result['response'], $result['status']);
     }
 
-    /**
-     * @param User $user
-     * @return mixed
-     */
-    public function show(User $user)
+    public function show(int $userId): mixed
     {
+        $user = UserRepository::findOrFail($userId);
+
         return $this->response($user->load(\request('with') ?? [])->toArray());
     }
 
-    /**
-     * @param UserRequest $request
-     * @param User $user
-     * @return mixed
-     */
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, int $userId): mixed
     {
+        $user = UserRepository::findOrFail($userId);
+
         $result = $this->userService->update($user, $request->validated());
 
         return $this->response($result['response'], $result['status']);
     }
 
-    /**
-     * @param User $user
-     * @return mixed
-     */
-    public function destroy(User $user)
+    public function destroy(int $userId): mixed
     {
+        $user = UserRepository::findOrFail($userId);
+
         $result = $this->userService->destroy($user);
 
         return $this->response($result['response'], $result['status']);
     }
 
-    /**
-     * @param UserRequest $request
-     * @return mixed
-     */
-    public function forgotPassword(UserRequest $request)
+    public function forgotPassword(UserRequest $request): mixed
     {
         $result = $this->userService->forgotPassword($request->validated());
 
         return $this->response($result['response'], $result['status']);
     }
 
-    /**
-     * @param UserRequest $request
-     * @return mixed
-     */
-    public function resetPassword(UserRequest $request)
+    public function resetPassword(UserRequest $request): mixed
     {
         $result = $this->userService->resetPassword($request->validated());
 

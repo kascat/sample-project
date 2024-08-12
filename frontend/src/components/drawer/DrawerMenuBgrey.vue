@@ -95,8 +95,8 @@
 
 <script>
 export default {
-  name: 'DrawerMenuBgrey'
-}
+  name: 'DrawerMenuBgrey',
+};
 </script>
 
 <style scoped>

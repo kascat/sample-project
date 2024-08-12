@@ -1,26 +1,78 @@
 <template>
   <q-table
-    title="Usuários"
+    :title="t('users')"
     :rows="usersData"
     :columns="columns"
     row-key="id"
     v-model:pagination="mainPagination"
     :loading="loading"
-    loading-label="Carregando..."
-    no-results-label="Nenhum usuário encontrado"
-    no-data-label="Nenhum usuário encontrado"
+    :loading-label="t('loading')"
+    :no-results-label="t('no_results')"
+    :no-data-label="t('no_results')"
     binary-state-sort
-    @request="getUsersFunction"
+    @request="fetchUsers"
   >
-    <template v-slot:top-right>
-      <q-btn
-        icon="add"
-        label="Cadastrar"
-        color="primary"
-        outline
-        :to="{ name: 'users_create' }"
-      />
+    <template v-slot:top>
+      <div class="table-top-row full-width">
+        <div class="row">
+          <div class="col">
+            <h6 class="q-mt-none q-mb-none text-weight-regular">
+              {{ t('users') }}
+            </h6>
+          </div>
+          <div class="col">
+            <q-btn
+              icon="add"
+              class="float-right"
+              :label="t('register')"
+              color="primary"
+              outline
+              :to="{ name: 'users_create' }"
+            />
+          </div>
+        </div>
+        <div class="row q-mt-md q-col-gutter-md">
+          <q-input
+            v-model="mainPagination.name"
+            :label="t('name')"
+            class="col-xs-12 col-md-4"
+            outlined
+            dense
+            color="primary"
+            lazy-rules
+            debounce="500"
+            @update:model-value="fetchUsers()"
+          />
+          <q-input
+            v-model="mainPagination.email"
+            :label="t('email')"
+            class="col-xs-12 col-md-4"
+            outlined
+            dense
+            color="primary"
+            lazy-rules
+            debounce="500"
+            @update:model-value="fetchUsers()"
+          />
+          <q-select
+            v-model="mainPagination.role"
+            :label="t('role')"
+            map-options
+            emit-value
+            hide-bottom-space
+            clearable
+            :options="rolesOptions"
+            option-label="label"
+            option-value="value"
+            dense
+            outlined
+            class="col-xs-12 col-md-4"
+            @update:model-value="fetchUsers()"
+          />
+        </div>
+      </div>
     </template>
+
     <template v-slot:body-cell-status="props">
       <q-td key="status" :props="props">
         <q-chip
@@ -30,19 +82,20 @@
         />
       </q-td>
     </template>
+
     <template v-slot:body-cell-actions="props">
       <q-td key="actions" :props="props">
         <q-btn-group outline>
           <q-btn
             v-if="loggedUser.id !== props.row.id"
             outline
-            :color="isBlocked(props.row) ? 'positive' : 'negative'"
-            :icon="isBlocked(props.row) ? 'check' : 'close'"
+            :color="userIsBlocked(props.row) ? 'positive' : 'negative'"
+            :icon="userIsBlocked(props.row) ? 'check' : 'close'"
             @click="changeStatus(props.row)"
             :loading="changingStatus"
           >
             <q-tooltip>
-              {{ isBlocked(props.row) ? 'Ativar' : 'Bloquear' }}
+              {{ userIsBlocked(props.row) ? t('activate') : t('block') }}
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -52,7 +105,7 @@
             :to="{ name: 'users_update', params: { 'id': props.row.id } }"
           >
             <q-tooltip>
-              Editar
+              {{ t('update') }}
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -60,12 +113,12 @@
             outline
             color="negative"
             icon="delete"
-            :loading="removing"
-            :disable="removing"
-            @click="destroyUserFunction(props.row.id)"
+            :loading="removingId === props.row.id"
+            :disable="removingId === props.row.id"
+            @click="deleteUser(props.row.id)"
           >
             <q-tooltip>
-              Excluir
+              {{ t('remove') }}
             </q-tooltip>
           </q-btn>
         </q-btn-group>
@@ -75,48 +128,52 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { loggedUser } from 'src/boot/user'
-import { getUsers, destroyUser, updateUser } from 'src/services/user/user-api'
-import { t } from 'src/services/utils/i18n'
-import { Notify, Dialog } from 'quasar'
+import { onMounted, ref } from 'vue';
+import { loggedUser } from 'src/boot/user';
+import { getUsers, destroyUser, updateUser } from 'src/services/user/user-api';
+import { t } from 'src/services/utils/i18n';
+import { Notify, Dialog } from 'quasar';
+import { ROLES } from 'src/constants/user_roles';
 
-let usersData = ref([])
-let loading = ref(false)
-let removing = ref(false)
-let changingStatus = ref(false)
+const usersData = ref([]);
+const loading = ref(false);
+const removingId = ref(null);
+const changingStatus = ref(false);
+
+const rolesOptions = Object.values(ROLES).map((role) => ({
+  label: t(`user.role.${role}`),
+  value: role,
+}));
 
 const mainPagination = ref({
   page: 1,
   rowsPerPage: 10,
   rowsNumber: 0,
-})
+});
 
 const columns = [
   {
     name: 'name',
-    label: 'Nome',
+    label: t('name'),
     align: 'left',
     field: 'name',
-    format: val => val || 'N/I',
   },
   {
     name: 'email',
-    label: 'E-mail',
+    label: t('email'),
     align: 'left',
     field: 'email',
-    format: val => val || 'N/I',
   },
   {
     name: 'role',
-    label: 'Tipo',
+    label: t('role'),
     align: 'left',
     field: 'role',
     format: val => t(`user.role.${val}`),
   },
   {
     name: 'status',
-    label: 'Status',
+    label: t('status'),
     align: 'left',
     field: 'status',
     format: val => t(`user.status.${val}`),
@@ -124,81 +181,81 @@ const columns = [
   {
     name: 'actions',
     align: 'center',
-    label: 'Ações',
+    label: t('actions'),
     field: 'id',
-    sortable: false
+    sortable: false,
   },
-]
+];
 
 onMounted(async () => {
-  await getUsersFunction()
-})
+  await fetchUsers();
+});
 
-async function getUsersFunction (props) {
-  loading.value = true
+async function fetchUsers(props) {
+  loading.value = true;
   try {
-    mainPagination.value = props?.pagination || mainPagination.value
-    usersData.value = await getUsers(mainPagination.value)
+    mainPagination.value = props?.pagination || mainPagination.value;
+    usersData.value = await getUsers(mainPagination.value);
   } catch (e) {
     Notify.create({
-      message: 'Falha ao buscar usuários',
-      type: 'negative'
-    })
+      message: t('failed_to_load'),
+      type: 'negative',
+    });
   }
-  loading.value = false
+  loading.value = false;
 }
 
-function isBlocked (user) {
-  return ['blocked', 'blocked_by_time'].includes(user.status)
+function userIsBlocked(user) {
+  return [ 'blocked', 'blocked_by_time' ].includes(user.status);
 }
 
-function changeStatus (user) {
+function changeStatus(user) {
   Dialog.create({
-    title: 'Atenção!',
-    message: `Tem certeza que deseja ${isBlocked(user) ? 'ativar' : 'bloquear'} este usuário?`,
+    title: t('warning'),
+    message: t('confirm_this_action'),
     cancel: true,
   }).onOk(async () => {
-    changingStatus.value = true
+    changingStatus.value = true;
     try {
-      await updateUser(user.id, { status: isBlocked(user) ? 'active' : 'blocked' })
-      getUsersFunction()
+      await updateUser(user.id, { status: userIsBlocked(user) ? 'active' : 'blocked' });
+      fetchUsers();
 
       Notify.create({
-        message: `Usuário ${isBlocked(user) ? 'ativo' : 'bloqueado'} com sucesso!`,
-        type: 'positive'
-      })
+        message: t('action_completed'),
+        type: 'positive',
+      });
     } catch (e) {
       Notify.create({
-        message: `Falha ao ${isBlocked(user) ? 'ativar' : 'bloquear'} usuário!`,
-        type: 'negative'
-      })
+        message: t('operation_failure'),
+        type: 'negative',
+      });
     }
-    changingStatus.value = false
-  })
+    changingStatus.value = false;
+  });
 }
 
-function destroyUserFunction (client) {
+function deleteUser(id) {
   Dialog.create({
-    title: 'Atenção!',
-    message: 'Tem certeza que deseja excluir este usuário?',
+    title: t('warning'),
+    message: t('confirm_remove'),
     cancel: true,
   }).onOk(async () => {
-    removing.value = true
+    removingId.value = id;
     try {
-      await destroyUser(client)
-      getUsersFunction()
+      await destroyUser(id);
+      fetchUsers();
 
       Notify.create({
-        message: 'Usuário excluído com sucesso!',
-        type: 'positive'
-      })
+        message: t('removed_successfully'),
+        type: 'positive',
+      });
     } catch (e) {
       Notify.create({
-        message: 'Falha ao excluir usuário!',
-        type: 'negative'
-      })
+        message: t('failed_to_remove'),
+        type: 'negative',
+      });
     }
-    removing.value = false
-  })
+    removingId.value = null;
+  });
 }
 </script>

@@ -9,7 +9,15 @@
 /* eslint-env node */
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { configure } = require('quasar/wrappers');
+
+// This will load from `.env` if it exists, but not override existing `process∙env∙*` values
 require('dotenv').config()
+// process.env now contains the terminal variables and the ones from the .env file
+// Precedence:
+//   1. Terminal variables (API_URL=https://api.com quasar build)
+//   2. `.env` file
+// If you want .env file to override the terminal variables,
+// use `require('dotenv').config({ override: true })` instead
 
 module.exports = configure(function (ctx) {
   return {
@@ -75,7 +83,7 @@ module.exports = configure(function (ctx) {
           .use(ESLintPlugin, [{ extensions: [ 'js', 'vue' ] }])
       },
       env: {
-        NODE_ENV: process.env.NODE_ENV,
+        ENVIRONMENT: process.env.ENVIRONMENT,
         API_URL: process.env.API_URL,
         FRONT_URL: process.env.FRONT_URL,
       }
@@ -113,7 +121,8 @@ module.exports = configure(function (ctx) {
       // Quasar plugins
       plugins: [
         'Notify',
-        'Dialog'
+        'Dialog',
+        'Loading'
       ]
     },
 
@@ -132,7 +141,7 @@ module.exports = configure(function (ctx) {
                       // (gets superseded if process.env.PORT is specified at runtime)
 
       maxAge: 1000 * 60 * 60 * 24 * 30,
-        // Tell browser when a file from the server should expire from cache (in ms)
+      // Tell browser when a file from the server should expire from cache (in ms)
 
       chainWebpackWebserver (chain) {
         chain.plugin('eslint-webpack-plugin')
@@ -158,9 +167,9 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `Base project`,
-        short_name: `Base project`,
-        description: `Base Application`,
+        name: `Sample project`,
+        short_name: `Sample project`,
+        description: `Sample Application`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -225,7 +234,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'base-project-frontend'
+        appId: 'sample-project-frontend'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
