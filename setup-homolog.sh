@@ -32,9 +32,9 @@ sed -i "s|@FRONT_PORT|$CONTAINER_FRONT_EXTERNAL_PORT|;" $PROJECT_FRONT_DIR/.env
 
 cp docker-compose.override.homolog.yaml docker-compose.override.yaml
 
-docker-compose build --force-rm --no-cache
+docker compose build --force-rm --no-cache
 
-docker-compose up --force-recreate -d
+docker compose up --force-recreate -d
 
 docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/storage
 docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/bootstrap/cache

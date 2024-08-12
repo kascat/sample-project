@@ -1,23 +1,23 @@
 export const insertDocumentMask = (doc) => {
   if (!doc) {
-    return doc
+    return doc;
   }
 
-  doc = doc.replace(/\D/g, "")
+  doc = doc.replace(/\D/g, '');
 
   if (doc.length <= 11) {
-    doc = doc.replace(/(\d{3})(\d)/, "$1.$2")
-    doc = doc.replace(/(\d{3})(\d)/, "$1.$2")
-    doc = doc.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+    doc = doc.replace(/(\d{3})(\d)/, '$1.$2');
+    doc = doc.replace(/(\d{3})(\d)/, '$1.$2');
+    doc = doc.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   } else {
-    doc = doc.replace(/^(\d{2})(\d)/, "$1.$2")
-    doc = doc.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-    doc = doc.replace(/\.(\d{3})(\d)/, ".$1/$2")
-    doc = doc.replace(/(\d{4})(\d)/, "$1-$2")
+    doc = doc.replace(/^(\d{2})(\d)/, '$1.$2');
+    doc = doc.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    doc = doc.replace(/\.(\d{3})(\d)/, '.$1/$2');
+    doc = doc.replace(/(\d{4})(\d)/, '$1-$2');
   }
 
-  return doc
-}
+  return doc;
+};
 
 export const validateCPForCNPJ = (val) => {
   if (val.length == 14) {
@@ -136,4 +136,4 @@ export const validateCPForCNPJ = (val) => {
   } else {
     return false;
   }
-}
+};

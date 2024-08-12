@@ -1,13 +1,27 @@
-import { loggedUser } from '../../boot/user'
+import {
+  checkIfLoggedUserHasAnyAbilities,
+  checkIfLoggedUserHasAllAbilities,
+} from 'src/boot/user';
+import { ABILITIES } from 'src/constants/abilities';
 
-const generalItems = [
+/**
+ * Descrição das habilidades para exibição do item no menu.
+ * O item deve possuir uma das definições abaixo:
+ * - anyAbilities: Usuário deve possuir ao menos uma das habilidades informadas.
+ *   Se o array for vazio ou conter valor nulo o menu será habilitado.
+ * - allAbilities: Usuário deve possuir todas as habilidades informadas.
+ *   Se o array for vazio ou conter somente um valor nulo o menu será habilitado.
+ *
+ * OBS: Vide mapeamento de rotas para o menu refletir as mesmas regras de acesso às rotas (router/routes.js)
+ */
+const allMenuItems = [
   {
     label: 'Dashboard',
     icon: 'o_dashboard',
     to: {
-      name: 'dashboard'
+      name: 'dashboard',
     },
-    permission: "allowed"
+    anyAbilities: [ null ],
   },
   {
     label: 'Acesso ao Sistema',
@@ -17,41 +31,44 @@ const generalItems = [
         label: 'Usuários',
         icon: 'o_account_circle',
         to: {
-          name: 'users'
+          name: 'users',
         },
-        permission: 'users'
+        allAbilities: [ ABILITIES.USERS ],
       },
       {
         label: 'Permissões',
         icon: 'fingerprint',
         to: {
-          name: 'permissions'
+          name: 'permissions',
         },
-        permission: 'permissions'
-      }
-    ]
+        allAbilities: [ ABILITIES.PERMISSIONS ],
+      },
+    ],
   },
-]
+];
 
 export const generateMenu = () => {
-  const filteredMenu = []
-  const abilities = [
-    "allowed",
-    ...(loggedUser.permission?.abilities || [])
-  ]
-  for (const menuItem of generalItems) {
-    if (abilities.includes(menuItem.permission)) {
-      filteredMenu.push(menuItem)
-      continue
+  const filteredMenu = [];
+
+  for (const menuItem of allMenuItems) {
+    if (
+      checkIfLoggedUserHasAllAbilities(menuItem.allAbilities) ||
+      checkIfLoggedUserHasAnyAbilities(menuItem.anyAbilities)
+    ) {
+      filteredMenu.push(menuItem);
+      continue;
     }
 
     if (menuItem.children) {
-      menuItem.children = menuItem.children.filter(children => abilities.includes(children.permission))
+      menuItem.children = menuItem.children.filter(children => (
+        checkIfLoggedUserHasAllAbilities(children.allAbilities) ||
+        checkIfLoggedUserHasAnyAbilities(children.anyAbilities)
+      ));
 
       if (menuItem.children.length > 0) {
-        filteredMenu.push(menuItem)
+        filteredMenu.push(menuItem);
       }
     }
   }
-  return filteredMenu
-}
+  return filteredMenu;
+};

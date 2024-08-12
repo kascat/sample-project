@@ -8,22 +8,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Kascat\EasyModule\Core\Service;
+use Permissions\Enums\AbilitiesEnum;
+use Users\Enums\UserRoleEnum;
 
 /**
  * Class UserService
- * @package Users
  */
 class UserService extends Service
 {
-    /**
-     * @param array $userData
-     * @return array
-     */
-    public function login(array $userData)
+    public function login(array $userData): array
     {
         /** @var User $user */
         $user = UserRepository::searchFromEmail($userData['email'])->first();
-
         if (!Hash::check($userData['password'], $user->password ?? null)) {
             throw self::exception([
                 'message' => 'E-mail ou senha inválidos'
@@ -38,7 +34,11 @@ class UserService extends Service
 
         $abilities = $user->permission->abilities ?? [];
 
-        $token = $user->createToken('Api token', $abilities);
+        $isApiUser = UserRoleEnum::API->value === $user->role;
+        $tokenName = $isApiUser ? 'Api token' : 'Login token';
+        $tokenExpiration = $isApiUser ? null : now()->addWeek();
+
+        $token = $user->createToken($tokenName, $abilities, $tokenExpiration);
 
         if ($user->login_time && !$user->expires_in) {
             $time      = $user->login_time ?: 0;
@@ -52,11 +52,7 @@ class UserService extends Service
         ]);
     }
 
-    /**
-     * @param $token
-     * @return string[]
-     */
-    public function logout($token)
+    public function logout($token): array
     {
         $tokenId = explode('|', $token)[0];
 
@@ -65,37 +61,25 @@ class UserService extends Service
         return self::buildReturn(['message' => 'Token Revoked']);
     }
 
-    /**
-     * @return string[]
-     */
-    public function logoutAll()
+    public function logoutAll(): array
     {
         Auth::user()->tokens()->delete();
 
         return self::buildReturn(['message' => 'Tokens Revoked']);
     }
 
-    /**
-     * @param array $filters
-     * @return array
-     */
-    public function index(array $filters)
+    public function index(array $filters): array
     {
-        $filters = UserService::injectLoggedUserFilters($filters);
-        $usersQuery = UserRepository::index($filters);
+        $usersQuery = UserRepository::defautFiltersQuery($filters);
 
         return self::buildReturn(
             $usersQuery
-                ->with(\request()->with ?? [])
-                ->paginate(\request()->perPage)
+                ->with(\request(self::WITH_RELATIONSHIP) ?? [])
+                ->paginate(\request(self::PER_PAGE))
         );
     }
 
-    /**
-     * @param array $data
-     * @return array
-     */
-    public function store(array $data)
+    public function store(array $data): array
     {
         $definedPassword  = $data['password'] ?? false;
         $randomPassword   = Carbon::now()->timestamp;
@@ -112,19 +96,14 @@ class UserService extends Service
         $user = User::create($data);
 
         if (!$definedPassword) {
-            $token = $user->createToken('Create password');
+            $token = $user->createToken('Create password', [ AbilitiesEnum::RESET_PASSWORD ]);
             Mail::to($user->email)->send(new SendEmailToResetPassword($user, $token));
         }
 
         return self::buildReturn($user);
     }
 
-    /**
-     * @param User $user
-     * @param array $data
-     * @return array
-     */
-    public function update(User $user, array $data)
+    public function update(User $user, array $data): array
     {
         if (isset($data['email'])) {
             /** @var User $userWithEmail */
@@ -152,22 +131,14 @@ class UserService extends Service
         return self::buildReturn($user);
     }
 
-    /**
-     * @param User $user
-     * @return array
-     */
-    public function destroy(User $user)
+    public function destroy(User $user): array
     {
         $user->delete();
 
         return self::buildReturn();
     }
 
-    /**
-     * @param array $userData
-     * @return array
-     */
-    public function forgotPassword(array $userData)
+    public function forgotPassword(array $userData): array
     {
         /** @var User $user */
         $user = UserRepository::searchFromEmail($userData['email'])->first();
@@ -178,9 +149,7 @@ class UserService extends Service
             ], 403);
         }
 
-        $abilities = $user->permission->abilities ?? [];
-
-        $token        = $user->createToken('Forgot password', $abilities);
+        $token = $user->createToken('Forgot password', [ AbilitiesEnum::RESET_PASSWORD ]);
         $user->status = User::STATUS_PENDING_PASSWORD;
         $user->save();
 
@@ -189,12 +158,9 @@ class UserService extends Service
         return self::buildReturn($token->plainTextToken);
     }
 
-    /**
-     * @param array $userData
-     * @return array
-     */
-    public function resetPassword(array $userData)
+    public function resetPassword(array $userData): array
     {
+        /** @var User $user */
         $user = auth()->user();
 
         if ($user->status !== User::STATUS_PENDING_PASSWORD) {
@@ -209,25 +175,5 @@ class UserService extends Service
         ]);
 
         return self::buildReturn([]);
-    }
-
-    /**
-     * @param array $filters
-     * @return array
-     */
-    public static function injectLoggedUserFilters(array $filters = [])
-    {
-        $loggedUser = Auth::user();
-
-        if (!$loggedUser) {
-            return $filters;
-        }
-
-        // Injetar filtros de acordo com usuário logado
-        // if ($loggedUser->role === User::USER_ROLE_MEMBER) {
-        //     $filters['member_id'] = $loggedUser->id;
-        // }
-
-        return $filters;
     }
 }

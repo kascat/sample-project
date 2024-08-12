@@ -1,21 +1,21 @@
 <template>
   <q-table
-    title="Permissões"
+    :title="t('permissions_label')"
     :rows="permissionsData"
     :columns="columns"
     row-key="id"
     v-model:pagination="mainPagination"
     :loading="loading"
-    loading-label="Carregando..."
-    no-results-label="Nenhuma permissão encontrada"
-    no-data-label="Nenhuma permissão encontrada"
+    :loading-label="t('loading')"
+    :no-results-label="t('no_results')"
+    :no-data-label="t('no_results')"
     binary-state-sort
     @request="getPermissionsFunction"
   >
     <template v-slot:top-right>
       <q-btn
         icon="add"
-        label="Cadastrar"
+        :label="t('register')"
         color="primary"
         outline
         :to="{ name: 'permissions_create' }"
@@ -31,19 +31,19 @@
             :to="{ name: 'permissions_update', params: { 'id': props.row.id } }"
           >
             <q-tooltip>
-              Editar
+              {{ t('update') }}
             </q-tooltip>
           </q-btn>
           <q-btn
             outline
             color="negative"
             icon="delete"
-            :loading="removing"
-            :disable="removing"
+            :loading="removingId === props.row.id"
+            :disable="removingId === props.row.id"
             @click="destroyPermissionFunction(props.row.id)"
           >
             <q-tooltip>
-              Excluir
+              {{ t('remove') }}
             </q-tooltip>
           </q-btn>
         </q-btn-group>
@@ -53,77 +53,78 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { getPermissions, destroyPermission } from 'src/services/permission/permission-api'
-import {Notify, Dialog} from 'quasar'
+import { onMounted, ref } from 'vue';
+import { getPermissions, destroyPermission } from 'src/services/permission/permission-api';
+import { Notify, Dialog } from 'quasar';
+import { t } from 'src/services/utils/i18n';
 
-let permissionsData = ref([])
-let loading = ref(false)
-let removing = ref(false)
+let permissionsData = ref([]);
+let loading = ref(false);
+let removingId = ref(null);
 
 const mainPagination = ref({
   page: 1,
   rowsPerPage: 10,
   rowsNumber: 0,
-})
+});
 
 const columns = [
   {
     name: 'name',
-    label: 'Nome',
+    label: t('name'),
     align: 'left',
     field: 'name',
-    format: val => val || 'N/I',
+    format: val => val || t('ni'),
   },
   {
     name: 'actions',
     align: 'center',
-    label: 'Ações',
+    label: t('actions'),
     field: 'id',
-    sortable: false
+    sortable: false,
   },
-]
+];
 
 onMounted(async () => {
-  await getPermissionsFunction()
-})
+  await getPermissionsFunction();
+});
 
 async function getPermissionsFunction(props) {
-  loading.value = true
+  loading.value = true;
   try {
-    mainPagination.value = props?.pagination || mainPagination.value
-    permissionsData.value = await getPermissions(mainPagination.value)
+    mainPagination.value = props?.pagination || mainPagination.value;
+    permissionsData.value = await getPermissions(mainPagination.value);
   } catch (e) {
     Notify.create({
-      message: 'Falha ao buscar permissões!',
-      type: 'negative'
-    })
+      message: t('failed_to_load'),
+      type: 'negative',
+    });
   }
-  loading.value = false
+  loading.value = false;
 }
 
-async function destroyPermissionFunction(permission) {
+async function destroyPermissionFunction(id) {
   Dialog.create({
-    title: 'Atenção!',
-    message: 'Tem certeza que deseja excluir esta permissão?',
+    title: t('warning'),
+    message: t('confirm_remove'),
     cancel: true,
   }).onOk(async () => {
-    removing.value = true
+    removingId.value = id;
     try {
-      await destroyPermission(permission)
-      getPermissionsFunction()
+      await destroyPermission(id);
+      getPermissionsFunction();
 
       Notify.create({
-        message: 'Permissão excluída com sucesso!',
-        type: 'positive'
-      })
+        message: t('removed_successfully'),
+        type: 'positive',
+      });
     } catch (e) {
       Notify.create({
-        message: 'Falha ao excluir permissão!',
-        type: 'negative'
-      })
+        message: t('failed_to_remove'),
+        type: 'negative',
+      });
     }
-    removing.value = false
-  })
+    removingId.value = null;
+  });
 }
 </script>

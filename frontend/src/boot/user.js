@@ -1,39 +1,79 @@
-import { getLoggedUser } from 'src/services/user/user-api'
+import { getLoggedUser } from 'src/services/user/user-api';
 
-let loggedUser = {}
+let loggedUser = {};
 
 const resetLoggedUser = () => {
-  loggedUser = {}
-}
+  loggedUser = {};
+};
 
 const resetUserInLocalStorage = () => {
-  localStorage.removeItem('isUserLogged')
-  localStorage.removeItem('userToken')
-}
+  localStorage.removeItem('isUserLogged');
+  localStorage.removeItem('userToken');
+};
 
 const loadLoggedUser = async () => {
-  resetLoggedUser()
+  resetLoggedUser();
 
   try {
-    const userToken = localStorage.getItem('userToken')
+    const userToken = localStorage.getItem('userToken');
 
     if (userToken) {
-      loggedUser = await getLoggedUser()
+      loggedUser = await getLoggedUser();
     } else {
-      resetUserInLocalStorage()
+      resetUserInLocalStorage();
     }
   } catch (e) {
-    resetUserInLocalStorage()
+    resetUserInLocalStorage();
   }
-}
+};
+
+const getLoggedUserAbilities = () => {
+  return loggedUser?.permission?.abilities || [];
+};
+
+const checkIfLoggedUserHasAbility = (ability) => {
+  if (!ability) {
+    return true;
+  }
+
+  return (loggedUser?.permission?.abilities || []).includes(ability);
+};
+
+const checkIfLoggedUserHasAllAbilities = (abilities) => {
+  if (!abilities) {
+    return false;
+  }
+
+  if (0 === abilities.length) {
+    return true;
+  }
+
+  return abilities.every((ability) => checkIfLoggedUserHasAbility(ability));
+};
+
+const checkIfLoggedUserHasAnyAbilities = (abilities) => {
+  if (!abilities) {
+    return false;
+  }
+
+  if (0 === abilities.length) {
+    return true;
+  }
+
+  return abilities.some((ability) => checkIfLoggedUserHasAbility(ability));
+};
 
 export default async ({ app }) => {
-  await loadLoggedUser()
+  await loadLoggedUser();
 }
 
 export {
   loggedUser,
   loadLoggedUser,
+  getLoggedUserAbilities,
+  checkIfLoggedUserHasAbility,
+  checkIfLoggedUserHasAllAbilities,
+  checkIfLoggedUserHasAnyAbilities,
   resetLoggedUser,
-  resetUserInLocalStorage
-}
+  resetUserInLocalStorage,
+};

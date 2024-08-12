@@ -2,57 +2,49 @@
 
 namespace Users;
 
+use App\Utils\Formatter;
+use Illuminate\Validation\Rule;
 use Kascat\EasyModule\Core\Request;
 use Illuminate\Validation\Rules\Password;
 
-/**
- * Class UserRequest
- * @package Users
- */
 class UserRequest extends Request
 {
-    /**
-     * @return string[]
-     */
     public function validateToLogin()
     {
         return [
-            'email'    => 'required',
-            'password' => 'required',
+            User::EMAIL => 'required',
+            User::PASSWORD => 'required',
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function validateToIndex()
     {
         return [
-            'name'          => '',
-            'permission_id' => '',
-            'role'          => '',
+            User::NAME => 'string|nullable',
+            User::EMAIL => 'string|nullable',
+            User::ROLE => 'string|nullable',
+            User::PERMISSION_ID => 'int|nullable',
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function validateToStore()
     {
         return [
-            'email'         => 'required|string|email|unique:users',
-            'name'          => 'required',
-            'role'          => 'required',
-            'permission_id' => 'required',
-            'password'      => 'nullable|string|min:6',
-            'login_time'    => 'nullable|integer',
-            'expires_in'    => 'nullable|date_format:d/m/Y H:i',
+            User::EMAIL => [
+                'required',
+                'string',
+                'email',
+                Rule::unique(User::TABLE, User::EMAIL),
+            ],
+            User::NAME => 'required',
+            User::ROLE => 'required',
+            User::PERMISSION_ID => 'required',
+            User::PASSWORD => 'nullable|string|min:6',
+            User::LOGIN_TIME => 'nullable|integer',
+            User::EXPIRES_IN => 'nullable|date_format:d/m/Y H:i',
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function validateToUpdate()
     {
         $pendingPassword = User::STATUS_PENDING_PASSWORD;
@@ -61,34 +53,32 @@ class UserRequest extends Request
         $blockedByTime   = User::STATUS_BLOCKED_BY_TIME;
 
         return [
-            'email'         => 'string|email',
-            'name'          => '',
-            'role'          => '',
-            'permission_id' => '',
-            'password'      => 'nullable|string|min:6',
-            'login_time'    => 'nullable|integer',
-            'expires_in'    => 'nullable|date_format:d/m/Y H:i',
-            'status'        => "in:$pendingPassword,$active,$blocked,$blockedByTime",
+            User::EMAIL => [
+                'string',
+                'email',
+                Rule::unique(User::TABLE, User::EMAIL)->ignore($this->route('user')),
+            ],
+            User::NAME => '',
+            User::ROLE => '',
+            User::STATUS => "in:$pendingPassword,$active,$blocked,$blockedByTime",
+            User::PERMISSION_ID => '',
+            User::PASSWORD => 'nullable|string|min:6',
+            User::LOGIN_TIME => 'nullable|integer',
+            User::EXPIRES_IN => 'nullable|date_format:d/m/Y H:i',
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function validateToForgotPassword()
     {
         return [
-            'email' => 'required|email',
+            User::EMAIL => 'required|email',
         ];
     }
 
-    /**
-     * @return array[]
-     */
     public function validateToResetPassword()
     {
         return [
-            'password' => [
+            User::PASSWORD => [
                 'required',
                 'string',
                 Password::min(6)
@@ -99,5 +89,12 @@ class UserRequest extends Request
                 'confirmed'
             ],
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        // $this->merge([
+        //     User::EXAMPLE => Formatter::onlyNumbers($this->input(User::EXAMPLE)),
+        // ]);
     }
 }

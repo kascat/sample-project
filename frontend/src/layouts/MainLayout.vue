@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header class="bg-white">
+    <q-header :class="menuColorClass">
       <q-toolbar>
         <div class="full-width q-pt-sm">
           <q-btn
@@ -28,7 +28,7 @@
                 @click="logoutUser"
               >
                 <q-item-section>
-                  <q-item-label>Logout</q-item-label>
+                  <q-item-label>{{ t('logout') }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -39,42 +39,48 @@
 
     <app-drawer ref="appDrawer"/>
 
-    <q-page-container>
+    <q-page-container class="bg-grey-1">
       <router-view/>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import AppDrawer from 'src/components/drawer/AppDrawer.vue'
-import { postLogoutUser } from "src/services/login/login-api"
-import { resetLoggedUser, resetUserInLocalStorage } from "boot/user"
-import { useRouter } from 'vue-router'
-import { Notify } from "quasar"
-import { ref } from "vue";
+import AppDrawer from 'src/components/drawer/AppDrawer.vue';
+import { postLogoutUser } from 'src/services/login/login-api';
+import { resetLoggedUser, resetUserInLocalStorage } from 'boot/user';
+import { useRouter } from 'vue-router';
+import { Notify } from 'quasar';
+import { computed, ref } from 'vue';
+import { t } from 'src/services/utils/i18n';
 
-const router = useRouter()
-const appDrawer = ref(null)
+const router = useRouter();
+const appDrawer = ref(null);
+
+const menuColorClass = computed(() => {
+  return {
+    development: 'bg-grey-4',
+    homolog: 'bg-orange-4',
+    production: 'bg-purple-3',
+  }[process.env.ENVIRONMENT] || 'bg-red-5';
+});
 
 const logoutUser = async () => {
   try {
-    await postLogoutUser()
+    await postLogoutUser();
 
-    resetLoggedUser()
-    resetUserInLocalStorage()
-    router.push({ name: 'login' })
+    resetLoggedUser();
+    resetUserInLocalStorage();
+    router.push({ name: 'login' });
   } catch {
     Notify.create({
-      message: 'Falha ao deslogar!',
-      type: 'negative'
-    })
+      message: t('unexpected_error'),
+      type: 'negative',
+    });
   }
-}
+};
 </script>
 
 <style scoped>
-.pre-text-info {
-  font-size: .75rem;
-  font-weight: bold;
-}
+
 </style>

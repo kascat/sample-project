@@ -12,7 +12,7 @@ if [[ ! " ${SCOPES[@]} " =~ " ${SCOPE} " ]]; then
   exit 1
 fi
 
-docker-compose up -d
+docker compose up -d
 
 if [[ $SCOPE == "root" || $SCOPE == "all" ]]; then
   echo "::::: DEPLOY ROOT STARTED :::::"
@@ -34,10 +34,6 @@ if [[ $SCOPE == "backend" || $SCOPE == "all" ]]; then
   docker exec -it $CONTAINER_BACK_NAME cron
   docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/storage
   docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/bootstrap/cache
-
-  # docker exec -it $CONTAINER_BACK_NAME mkfifo /var/www/app/pipe
-  # docker exec -it $CONTAINER_BACK_NAME chown nginx:nginx /var/www/app/pipe
-  # docker exec -d -it $CONTAINER_BACK_NAME sh /var/www/app/exec-pipe.sh
 
   docker ps
   docker exec -it $CONTAINER_BACK_NAME service cron status

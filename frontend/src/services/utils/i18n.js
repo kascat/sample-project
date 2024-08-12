@@ -1,23 +1,39 @@
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
-export const t = (labelToTranslate) => {
-  const { messages, locale } = useI18n()
-  const localeMessages = messages.value?.[locale.value]
-  const keys = (labelToTranslate || '').split('.')
+let appMessages;
+let appLocale;
 
-  let currentKey = labelToTranslate
-  const translatedLabel = keys.reduce((ac, key, i, arr) => {
-    currentKey = currentKey.slice(key.length + 1)
-    const keyMessage = ac?.[key]?.[currentKey]
+export const t = (labelToTranslate, data = {}) => {
+  if (!appMessages || !appLocale) {
+    const { messages, locale } = useI18n();
+    appMessages = messages;
+    appLocale = locale;
+  }
+
+  const localeMessages = appMessages.value?.[appLocale.value];
+  const keys = (labelToTranslate || '').split('.');
+
+  let currentKey = labelToTranslate;
+  let translatedLabel = keys.reduce((ac, key, i, arr) => {
+    currentKey = currentKey.slice(key.length + 1);
+    const keyMessage = ac?.[key]?.[currentKey];
 
     if (!keyMessage) {
-      return ac?.[key]
+      return ac?.[key];
     }
 
-    arr.splice(i)
+    arr.splice(i);
 
-    return keyMessage
-  }, localeMessages)
+    return keyMessage;
+  }, localeMessages);
 
-  return translatedLabel !== undefined ? translatedLabel : labelToTranslate;
-}
+  if (undefined === translatedLabel) {
+    return labelToTranslate;
+  }
+
+  for (const key in data) {
+    translatedLabel = translatedLabel.replace(`{${key}}`, data[key]);
+  }
+
+  return translatedLabel;
+};

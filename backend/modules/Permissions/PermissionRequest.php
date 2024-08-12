@@ -6,39 +6,29 @@ use Kascat\EasyModule\Core\Request;
 
 /**
  * Class PermissionRequest
- * @package Permissions
  */
 class PermissionRequest extends Request
 {
-    /**
-     * @return string[]
-     */
-    public function validateToIndex()
+    public function validateToIndex(): array
     {
         return [
-            'name' => '',
+            Permission::NAME => 'nullable|string',
         ];
     }
 
-    /**
-     * @return string[]
-     */
-    public function validateToStore()
+    public function validateToStore(): array
     {
         return [
-            'name'      => 'required|min:2',
-            'abilities' => '',
+            Permission::NAME => ['required', 'min:2'],
+            Permission::ABILITIES => ['array', 'nullable'],
         ];
     }
 
-    /**
-     * @return string[]
-     */
-    public function validateToUpdate()
+    public function validateToUpdate(): array
     {
         return [
-            'name'      => 'min:2',
-            'abilities' => '',
+            Permission::NAME => ['required', 'min:2'],
+            Permission::ABILITIES => ['array', 'nullable'],
         ];
     }
 }

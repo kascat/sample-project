@@ -2,35 +2,36 @@
 
 namespace Permissions;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Permission
- * @package Permissions
+ * @property int         $id
+ * @property string      $name
+ * @property array|null  $abilities
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Permission extends Model
 {
-    const PERMISSIONS = [
-        'users',
-        'permissions'
+    const ID = 'id';
+    const NAME = 'name';
+    const ABILITIES = 'abilities';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+
+    const TABLE = 'permissions';
+
+    protected $table = self::TABLE;
+
+    protected $guarded = [
+        self::ID,
+        self::CREATED_AT,
+        self::UPDATED_AT,
     ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'abilities',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'abilities' => 'array',
+        self::ABILITIES => 'array',
     ];
 }

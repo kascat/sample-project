@@ -2,20 +2,17 @@
 
 namespace Permissions;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class PermissionRepository
- * @package Permissions
  */
 class PermissionRepository
 {
-    /**
-     * @param array $filters
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Support\HigherOrderWhenProxy|\Illuminate\Support\Traits\Conditionable|mixed
-     */
-    public static function index(array $filters = [])
+    public static function defautFiltersQuery(mixed $filters = []): Builder
     {
-        return Permission::query()->when($filters['name'] ?? null, function ($query, $name) {
-            return $query->where('name', 'like', "%$name%");
+        return Permission::query()->when($filters[Permission::NAME] ?? null, function ($query, $value) {
+            return $query->where(Permission::NAME, 'like', "%$value%");
         });
     }
 }

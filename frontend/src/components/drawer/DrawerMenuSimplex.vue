@@ -1,13 +1,13 @@
 <template>
-  <div style="min-height: 100vh;">
+  <div style="min-height: 100vh;" :class="menuColorClass">
     <q-toolbar class="bg-transparent">
       <img
-        src="~assets/logo.jpeg"
+        src="~assets/icon.png"
         style="max-height:50px;"
         class="absolute-center"
       >
     </q-toolbar>
-    <q-card flat>
+    <q-card flat :class="menuColorClass">
       <q-card-section>
         <q-item
           clickable
@@ -35,8 +35,7 @@
           clickable
           v-ripple:green
           class="text-grey-9"
-          :active="item.icon === 'o_shopping_bag'"
-          active-class="active-link"
+          active-class="active-link active-item"
           :to="item.to"
         >
           <q-item-section side>
@@ -71,7 +70,7 @@
               :to="children.to"
               clickable
               v-ripple:blue
-              active-class="active-link-children"
+              active-class="active-link-children active-item"
             >
               <q-item-section side>
                 <q-icon
@@ -92,30 +91,36 @@
 </template>
 
 <script setup>
-import { loggedUser } from 'boot/user'
-import { generateMenu } from 'src/services/utils/menu'
+import { loggedUser } from 'boot/user';
+import { generateMenu } from 'src/services/utils/menu';
+import { computed } from 'vue';
 
-const generalItems = generateMenu()
+const menuColorClass = computed(() => {
+  return {
+    development: 'bg-grey-4',
+    homolog: 'bg-orange-4',
+    production: 'bg-purple-3',
+  }[process.env.ENVIRONMENT] || 'bg-red-5';
+});
+
+const generalItems = generateMenu();
 </script>
 
-<style scoped>
-.active-link {
+<style scoped lang="scss">
+.active-item {
   font-weight: bold;
-  border-right: 3px solid #4caf50;
-}
-
-.active-link-children {
-  font-weight: bold;
-  border-right: 3px solid #486eb3;
+  border-right: 3px solid #AAA;
 }
 
 .active-link i,
-.active-link .q-item__section {
-  color: #4caf50 !important;
+.active-link {
+  border-color: $primary;
+  color: $primary !important;
 }
 
 .active-link-children i,
-.active-link-children .q-item__section {
-  color: #486eb3 !important;
+.active-link-children {
+  border-color: $secondary;
+  color: $secondary !important;
 }
 </style>

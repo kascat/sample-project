@@ -2,7 +2,7 @@
 
 source .env
 
-docker-compose up --force-recreate -d
+docker compose up --force-recreate -d
 
 docker exec -it $CONTAINER_BACK_NAME composer install
 docker exec -it $CONTAINER_BACK_NAME php artisan migrate
@@ -12,11 +12,6 @@ docker exec -it $CONTAINER_BACK_NAME php artisan migrate
 ./chown-files.sh $PROJECT_BACK_DIR
 docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/storage
 docker exec -it $CONTAINER_BACK_NAME chown -R nginx:nginx /var/www/app/bootstrap/cache
-
-# Arquivo pipe utilizado pela Classe LibreOffice.php
-#docker exec -it $CONTAINER_BACK_NAME mkfifo /var/www/app/pipe
-#docker exec -it $CONTAINER_BACK_NAME chown nginx:nginx /var/www/app/pipe
-#docker exec -d -it $CONTAINER_BACK_NAME sh /var/www/app/exec-pipe.sh
 
 docker ps
 #docker exec -it $CONTAINER_BACK_NAME service cron status
