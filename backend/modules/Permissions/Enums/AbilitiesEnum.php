@@ -28,6 +28,8 @@ enum AbilitiesEnum: string
 
     public static function requireAnyAbility(array $abilities): string
     {
+        $abilities = array_map(fn (self $ability) => $ability->value, $abilities);
+
         return 'ability:' . implode(',', $abilities);
     }
 }
