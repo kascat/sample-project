@@ -10,7 +10,8 @@ Abaixo se encontram os passos para SETUP e demais comandos disponíveis.
 
 ### Ambiente de desenvolvimento
 
-OBS: É necessário que já estejam previamente instalados **Docker** e **Docker compose**
+#### Requisitos:
+- Docker
 
 A estrutura do projeto após o setup está demonstrada abaixo:
 
@@ -61,7 +62,7 @@ O comando abaixo pode ser utilizado para atualizar o backend e frontend com a br
 
 Para realizar o setup no ambiente de homolog os itens abaixo precisam ser seguidos:
 
-- Instalação de **Docker** e **Docker compose**
+- Instalação do **Docker**
 - Criação de chaves SSH para operações de cada repositório Git
 - Adição no Git das chaves SSH criadas
 - Mapeamento dos repositórios para as respectivas chaves SSH em ~/.ssh/config
