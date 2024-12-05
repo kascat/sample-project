@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-source .env
+ROOT_DIR="$(dirname "$(realpath "$0")")/.."
+
+export $(grep -v '^#' $ROOT_DIR/.env | grep -v '^$' | xargs)
 
 [[ $SLACK_NOTIFIER_URI ]] && SLACK_URI=$SLACK_NOTIFIER_URI || SLACK_URI=""
 

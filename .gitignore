@@ -1,13 +1,6 @@
-docker-compose.override.yaml
-
+/docker-compose.yaml
+.sudo-pass
 .env
-
-#/frontend
-#/backend
-/database
-#/documentation
 
 /.idea
 /.vscode
-
-sudo-pass

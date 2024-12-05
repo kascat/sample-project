@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-COPY ./frontend /app/
+RUN mkdir -p /app
 
 WORKDIR /app
 

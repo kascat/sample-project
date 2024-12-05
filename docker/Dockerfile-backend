@@ -1,0 +1,10 @@
+FROM wyveo/nginx-php-fpm:php82
+
+RUN mkdir -p /var/www/app
+
+WORKDIR /var/www/app
+
+# Configuração do cron
+# RUN apt-get update && apt-get install cron -y
+# RUN echo "* * * * * cd /var/www/app && php artisan schedule:run >> /dev/null 2>&1" > /etc/cron.d/cron_project
+# RUN crontab /etc/cron.d/cron_project

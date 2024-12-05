@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-PASSWORD=`cat sudo-pass`
+ROOT_DIR="$(dirname "$(realpath "$0")")/.."
+
+PASSWORD=`cat $ROOT_DIR/.sudo-pass`
 
 if [[ ! $PASSWORD ]]; then
   read -s -p '[sudo] senha:' PASSWORD
@@ -8,7 +10,7 @@ if [[ ! $PASSWORD ]]; then
 
   read -p "Lembrar senha? (s/n):" REMEMBER
   if [[ $REMEMBER == 's' || $REMEMBER == 'S' ]]; then
-    echo $PASSWORD > sudo-pass
+    echo $PASSWORD > $ROOT_DIR/.sudo-pass
     echo 'Senha salva!'
   fi
 fi
