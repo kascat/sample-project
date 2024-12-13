@@ -1,0 +1,52 @@
+{
+  "name": "application",
+  "description": "Application",
+  "productName": "Application",
+  "author": "Fabio Dukievicz <fabiojd47@gmail.com>",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue ./",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.16.12",
+    "axios": "^1.7.4",
+    "chart.js": "^4.4.3",
+    "core-js": "^3.38.0",
+    "dotenv": "^16.4.5",
+    "quasar": "^2.16.9",
+    "vue": "^3.4.38",
+    "vue-chartjs": "^5.3.1",
+    "vue-i18n": "^9.14.0",
+    "vue-router": "^4.4.3",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/eslint-parser": "^7.25.1",
+    "@quasar/app-webpack": "^3.13.4",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.27.0",
+    "eslint-webpack-plugin": "^4.2.0",
+    "faker": "^5.5.3",
+    "webpack": "^5.93.0",
+    "workbox-webpack-plugin": "^7.0.0"
+  },
+  "browserslist": [
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
+  ],
+  "engines": {
+    "node": ">= 12.22.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}
