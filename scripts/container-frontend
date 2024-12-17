@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Este arquivo pode ser usado para executar comandos dentro do container frontend
+# Ex: ./container-frontend yarn
+
+ROOT_DIR="$(dirname "$(realpath "$0")")/.."
+
+cd $ROOT_DIR
+
+export $(grep -v '^#' .env | grep -v '^$' | xargs)
+
+COMMAND=$*
+
+docker exec -it $FRONT_CONTAINER_NAME $COMMAND
+
+if [[ $FRONT_REPO_GIT ]]; then
+  NEW_FILES="?? "
+
+  GIT_STATUS=`cd src/$FRONT_PROJECT_DIR && git status -s | grep "$NEW_FILES"`
+
+  # Concederá permissão de modificação se tiver novos arquivos
+  if [[ $GIT_STATUS ]]; then
+    ./scripts/chown-files.sh src/$FRONT_PROJECT_DIR
+  fi
+else
+  ./scripts/chown-files.sh src/$FRONT_PROJECT_DIR
+fi

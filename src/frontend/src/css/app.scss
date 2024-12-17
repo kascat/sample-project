@@ -1,0 +1,36 @@
+// @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300&display=swap');
+
+body * {
+  // font-family: 'Roboto', sans-serif;
+  font-family: 'Poppins', sans-serif;
+}
+
+.spin-icon {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.overflow-light {
+  overflow: auto;
+}
+
+.overflow-light::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-light::-webkit-scrollbar-thumb {
+  background-color: #cbcbcb;
+}
+
+.overflow-light::-webkit-scrollbar-thumb:hover {
+  background-color: #bdbdbd;
+}

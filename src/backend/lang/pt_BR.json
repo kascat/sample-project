@@ -1,0 +1,10 @@
+{
+    "All rights reserved.": "Todos os direitos reservados.",
+    "password_setting": "Definição de senha",
+    "inactive_user": "Usuário inativo",
+    "expired_access": "Acesso expirado",
+    "invalid_email_or_password": "E-mail ou senha inválidos",
+    "unexpected_error": "Erro inesperado",
+    "user_not_found_or_blocked": "Usuário não encontrado ou bloqueado",
+    "user_status_does_not_allow_password_change": "O status do usuário não permite a alteração de senha"
+}
