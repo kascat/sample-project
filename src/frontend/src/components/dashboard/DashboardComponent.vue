@@ -10,7 +10,7 @@
       {{ t('app_name') }}
     </div>
   </div>
-  <!-- desativado até ajustar dashboard -->
+  <!-- Componentes exemplo -->
   <div v-if="false">
     <div class="row">
       <div class="col-xs-12 col-sm-6 col-md-4 q-pa-sm" v-for="(item, index) in cards" :key="index">

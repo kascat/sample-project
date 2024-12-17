@@ -67,7 +67,7 @@
         <q-item class="q-pa-none">
           <q-item-section>
             <q-item-label>{{ t(`user.role.${props.row.role}`) }}</q-item-label>
-            <q-item-label caption>{{ props.row.phone }}</q-item-label>
+            <q-item-label caption>{{ formatPhoneNumber(props.row.phone) }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-td>
@@ -144,6 +144,7 @@ import { t, tc } from 'src/services/utils/i18n';
 import { Notify, Dialog } from 'quasar';
 import { ROLES } from 'src/constants/user_roles';
 import { USER_STATUS, USER_STATUS_COLOR } from 'src/constants/user_status';
+import { formatPhoneNumber } from '../../services/utils/formatter';
 
 const usersData = ref([]);
 const loading = ref(false);

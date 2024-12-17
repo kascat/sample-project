@@ -2,11 +2,15 @@
   <q-list style="width: 300px; max-width: 95vw">
     <q-item class="q-pa-none">
       <q-item-section class="rounded-borders bg-grey-3 q-ma-sm q-pa-md">
-        <div class="text-blue-grey-10">
+        <div class="text-blue-grey-10 text-bold">
           {{ loggedUser.name }}
         </div>
+        <q-separator/>
         <div class="text-blue-grey-8">
           {{ loggedUser.email }}
+        </div>
+        <div v-if="!!loggedUser.phone" class="text-blue-grey-8">
+          {{ formatPhoneNumber(loggedUser.phone) }}
         </div>
       </q-item-section>
     </q-item>
@@ -83,6 +87,7 @@ import userMenu from 'src/services/menu/user-menu';
 import { logoutUser } from 'src/services/auth/auth-api';
 import { Notify } from 'quasar';
 import { useRouter } from 'vue-router';
+import { formatPhoneNumber } from 'src/services/utils/formatter';
 
 const router = useRouter();
 

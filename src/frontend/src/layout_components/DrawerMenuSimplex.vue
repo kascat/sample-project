@@ -5,10 +5,6 @@
         <div class="row q-col-gutter-sm">
           <div class="text-subtitl text-bold text-center text-blue-grey-10 col-12">
             {{ loggedUser.name }}
-            <q-separator class="q-mt-sm"/>
-          </div>
-          <div class="text-blue-grey-10 col-12 text-center">
-            {{ loggedUser.email }}
           </div>
         </div>
       </q-item-section>
