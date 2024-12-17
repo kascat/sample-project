@@ -2,15 +2,28 @@
 
 echo "::::: SETUP STARTED :::::"
 
-echo "Antes de prosseguir realize a configuração das variáveis no arquivo .env.example (da pasta principal)."
+echo "Atenção:"
+echo "- O setup irá criar o arquivo .env a partir de .env.example, e irá abrí-lo para edição automaticamente."
+echo "- Se desejar preencher os valores .env previamente, crie o arquivo com 'cp .env.example .env' e modifique-o com 'nano .env'."
+echo "- Obs: Se o arquivo .env já existir, ele NÃO será sobrescrito no setup."
+echo "- Se seu projeto possui repositórios individuais backend e frontend, certifique que estão definidos no .env"
 
-read -p "Confirma inicio do setup? ('Ctrl + C' pata cancelar)"
+read -p "Prosseguir com setup? (s/N): " CONTINUE_SETUP
+
+if [[ "$CONTINUE_SETUP" != "s" && "$CONTINUE_SETUP" != "S" ]]; then
+    echo "Saindo..."
+    exit 1
+fi
 
 ROOT_DIR="$(dirname "$(realpath "$0")")/.."
 
 cd $ROOT_DIR
 
-cp .env.example .env
+if [ ! -e ".env" ]; then
+  cp .env.example .env
+fi
+
+nano .env
 
 export $(grep -v '^#' .env | grep -v '^$' | xargs)
 # "source .env" necessário para carregar valores com espaço ex: APP_NAME

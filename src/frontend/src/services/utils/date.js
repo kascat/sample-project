@@ -1,6 +1,6 @@
 export const parseDate = datetime => {
   if (!datetime) {
-    return datetime
+    return datetime;
   }
 
   if (datetime.includes('/')) {
@@ -58,9 +58,13 @@ export const calculateIntervalInMinutes = (initialHour, finalHour) => {
   return timeInterval / 60000;
 };
 
-export const formatDatetimeBR = (datetime) => {
-  const splitedDate = String(datetime).split('T')[0];
-  const finalDate = formatDateBR(splitedDate);
-
-  return finalDate;
+export const formatIsoDateBr = (dateStr) => {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(dateStr)).replace(',', '');
 };

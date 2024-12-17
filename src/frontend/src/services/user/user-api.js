@@ -22,6 +22,11 @@ export const updateUser = async (id, user) => {
   return data;
 };
 
+export const changeUserStatus = async (id, body) => {
+  const { data } = await put(`/users/${id}/status`, body);
+  return data;
+};
+
 export const destroyUser = async id => {
   await destroy(`/users/${id}`);
 };

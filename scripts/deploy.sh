@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SCOPE=${1/--/}
-SCOPES=("root" "backend" "frontend" "all")
+SCOPES=("infra" "backend" "frontend" "all")
 
 ROOT_DIR="$(dirname "$(realpath "$0")")/.."
 
@@ -12,18 +12,18 @@ export $(grep -v '^#' .env | grep -v '^$' | xargs)
 #NOTIFIER=scripts/slack-notify
 
 if [[ ! " ${SCOPES[@]} " =~ " ${SCOPE} " ]]; then
-  echo "Insira um escopo de deploy válido: ('--root', '--backend', '--frontend', '--all')"
+  echo "Insira um escopo de deploy válido: ('--infra', '--backend', '--frontend', '--all')"
   exit 1
 fi
 
 docker compose up -d
 
-if [[ $SCOPE == "root" || $SCOPE == "all" ]]; then
-  echo "::::: DEPLOY ROOT STARTED :::::"
-  #$NOTIFIER ":black_small_square: HOMOLOG ROOT - DEPLOY STARTED"
+if [[ $SCOPE == "infra" || $SCOPE == "all" ]]; then
+  echo "::::: DEPLOY INFRA STARTED :::::"
+  #$NOTIFIER ":black_small_square: HOMOLOG INFRA - DEPLOY STARTED"
   (git checkout . && git checkout $ROOT_REPO_BRANCH && git pull origin $ROOT_REPO_BRANCH)
-  echo "::::: DEPLOY ROOT COMPLETED :::::"
-  #$NOTIFIER ":black_small_square: HOMOLOG ROOT - DEPLOY COMPLETED"
+  echo "::::: DEPLOY INFRA COMPLETED :::::"
+  #$NOTIFIER ":black_small_square: HOMOLOG INFRA - DEPLOY COMPLETED"
 fi
 
 if [[ $SCOPE == "backend" || $SCOPE == "all" ]]; then

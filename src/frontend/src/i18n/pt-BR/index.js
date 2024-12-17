@@ -1,5 +1,5 @@
 export default {
-  app_name: 'App',
+  app_name: 'Kaskata App',
   months: {
     1: 'Janeiro',
     2: 'Fevereiro',
@@ -40,6 +40,7 @@ export default {
       blocked: 'Bloqueado',
     },
   },
+  access_expiration_message: 'Seu acesso termina em {date}',
   permissions_label: 'Permissões',
   message_404: 'Oops. Nada aqui...',
   expand: 'Expandir',
@@ -88,11 +89,10 @@ export default {
   number: 'Número',
   complement: 'Complemento',
   email: 'E-mail',
-  whatsapp: 'WhatsApp',
+  whatsapp_phone: 'WhatsApp/Telefone',
   type: 'Tipo',
-  phone_number: 'Telefone',
   close: 'Fechar',
-  system_user: 'Usuário',
+  user_label: 'Usuário',
   password: 'Senha',
   users: 'Usuários',
   activate: 'Ativar',
@@ -120,11 +120,27 @@ export default {
   do_not_have_an_account: 'Não possui uma conta?',
   already_have_an_account: 'Já possui uma conta?',
   do_login: 'Faça login',
-  // Dashboard
   data_from: 'Dados de {date}',
   monthly: 'Mensal',
   uninformed: 'Não informado',
-  // ----------
+  access_time_after_login: 'Minutos de acesso após login',
+  login_time_info: 'Defina o tempo de acesso em minutos após o primeiro login usando este campo. Alternativamente, utilize o campo "Data limite de acesso" para configurar uma data específica de expiração.',
+  expires_in_info: 'Utilize este campo para estabelecer uma data limite de acesso do usuário à plataforma. Como alternativa, use o campo "Minutos de acesso após login" para definir a duração do acesso em minutos após o primeiro login.',
+  limit_access_date: 'Data limite de acesso',
+  user_password: 'Senha do usuário',
+  user_password_input_notice: 'Aviso: Após o salvamento esta senha não será mais exibida.',
+  user_password_rule: 'A senha deve ter no mínimo 4 caracteres',
+  user_password_notice: 'Aviso: Caso a senha não seja definida será enviado um e-mail para definição da senha.',
+  password_set: 'Senha definida',
+  set_password: 'Definir senha',
+  name_email: 'Nome/E-mail',
+  role_phone: 'Papel/Telefone',
+  status_access: 'Status/Acesso',
+  x_minutes: {
+    singular: '1 minuto',
+    plural: '{count} minutos',
+  },
+  // ------
   value_x_of_y: 'R${x} de R${y}',
   quantity_x_of_y: '{x} de {y}',
   formated_value: 'R${value}',
@@ -132,13 +148,5 @@ export default {
     singular: '1 mês',
     plural: '{count} meses',
   },
-  ////////
-  user_password: 'Senha do usuário',
-  user_password_input_notice: 'Aviso: Após o salvamento do usuário esta senha não será mais exibida.',
-  user_password_rule: 'A senha deve ter no mínimo 6 caracteres',
-  accessible_until: 'Acessível até',
-  user_password_notice: 'Aviso: caso a senha não seja definida será enviado um e-mail para definição da senha.',
-  password_set: 'Senha definida',
-  set_password: 'Definir senha',
-  usage_time: 'Tempo de uso',
+  // ------
 };

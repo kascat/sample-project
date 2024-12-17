@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Carbon\Carbon;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Users\Enums\UserStatusEnum;
 use Users\User;
 use Closure;
 use Illuminate\Http\Response;
@@ -16,7 +17,7 @@ class UserChecker
         /** @var User|null $loggedUser */
         $loggedUser = Auth::user();
 
-        if ($loggedUser?->status !== User::STATUS_ACTIVE) {
+        if ($loggedUser?->status !== UserStatusEnum::ACTIVE) {
             throw new HttpResponseException(response()->json(['message' => __('inactive_user')], Response::HTTP_UNAUTHORIZED));
         }
 

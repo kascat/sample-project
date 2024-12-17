@@ -62,25 +62,25 @@ class UserController extends Controller
         return response($result['response'], $result['status']);
     }
 
-    public function show(int $userId): mixed
+    public function show(int $id): mixed
     {
-        $user = UserRepository::findOrFail($userId);
+        $user = UserRepository::findOrFail($id);
 
         return response($user->load(\request('with') ?? [])->toArray());
     }
 
-    public function update(UserRequest $request, int $userId): mixed
+    public function update(UserRequest $request, int $id): mixed
     {
-        $user = UserRepository::findOrFail($userId);
+        $user = UserRepository::findOrFail($id);
 
         $result = $this->userService->update($user, $request->validated());
 
         return response($result['response'], $result['status']);
     }
 
-    public function destroy(int $userId): mixed
+    public function destroy(int $id): mixed
     {
-        $user = UserRepository::findOrFail($userId);
+        $user = UserRepository::findOrFail($id);
 
         $result = $this->userService->destroy($user);
 
@@ -94,9 +94,18 @@ class UserController extends Controller
         return response($result['response'], $result['status']);
     }
 
-    public function resetPassword(UserRequest $request): mixed
+    public function passwordSetting(UserRequest $request): mixed
     {
-        $result = $this->userService->resetPassword($request->validated());
+        $result = $this->userService->passwordSetting($request->validated());
+
+        return response($result['response'], $result['status']);
+    }
+
+    public function status(UserRequest $request, int $id): mixed
+    {
+        $user = UserRepository::findOrFail($id);
+
+        $result = $this->userService->updateStatus($user, $request->validated());
 
         return response($result['response'], $result['status']);
     }

@@ -4,10 +4,10 @@ namespace Users;
 
 use App\Utils\Formatter;
 use Carbon\Carbon;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Kascat\EasyModule\Core\Service;
 use Laravel\Sanctum\NewAccessToken;
@@ -15,6 +15,7 @@ use Permissions\Enums\AbilitiesEnum;
 use Permissions\Permission;
 use Throwable;
 use Users\Enums\UserRoleEnum;
+use Users\Enums\UserStatusEnum;
 use Users\Mail\UserPasswordSettingMail;
 
 /**
@@ -37,8 +38,8 @@ class UserService extends Service
                 User::ROLE => UserRoleEnum::ACCOUNT_OWNER,
                 User::NAME => $data[User::NAME],
                 User::EMAIL => $data[User::EMAIL],
-                User::PASSWORD => bcrypt($data['password']),
-                User::STATUS => User::STATUS_ACTIVE,
+                User::PASSWORD => bcrypt($data[User::PASSWORD]),
+                User::STATUS => UserStatusEnum::ACTIVE,
             ]);
 
             DB::commit();
@@ -48,27 +49,31 @@ class UserService extends Service
             return self::buildReturn([
                 'token' => $token->plainTextToken
             ]);
-        } catch (Throwable $throwable) {
+        } catch (Throwable $exception) {
             DB::rollBack();
 
+            Log::error('UserService: Failed to register user', [
+                'errorMessage' => $exception->getMessage(),
+            ]);
+
             return self::buildReturn([
-                'message' => $throwable->getMessage(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                'message' => __('unexpected_error')
+            ], 500);
         }
     }
 
     public function login(array $userData): array
     {
         /** @var User|null $user */
-        $user = UserRepository::searchFromEmail($userData['email'])->first();
+        $user = UserRepository::searchFromEmail($userData[User::EMAIL])->first();
 
-        if (!Hash::check($userData['password'], $user->password ?? null)) {
+        if (!Hash::check($userData[User::PASSWORD], $user->password ?? null)) {
             throw self::exception([
                 'message' => __('invalid_email_or_password')
             ], 403);
         }
 
-        if ($user->status !== User::STATUS_ACTIVE) {
+        if ($user->status !== UserStatusEnum::ACTIVE) {
             throw self::exception([
                 'message' => __('inactive_user'),
             ], 403);
@@ -84,9 +89,9 @@ class UserService extends Service
 
         if ($user->login_time && !$user->expires_in) {
             $time = $user->login_time ?: 0;
-            $expiresIn = (new \DateTime())->add(new \DateInterval("PT${time}M"));
+            $expiresIn = (new \DateTime())->add(new \DateInterval("PT{$time}M"));
 
-            $user->update(['expires_in' => $expiresIn]);
+            $user->update([User::EXPIRES_IN => $expiresIn]);
         }
 
         return self::buildReturn([
@@ -115,9 +120,7 @@ class UserService extends Service
         /** @var User $user */
         $user = auth()->user();
 
-        $user->load(
-            User::RELATION_PERMISSION,
-        );
+        $user->load(User::RELATION_PERMISSION,);
 
         $permission = $user->permission;
 
@@ -147,57 +150,64 @@ class UserService extends Service
 
         return self::buildReturn(
             $usersQuery
-                ->with(\request(self::WITH_RELATIONSHIP) ?? [])
-                ->paginate(\request(self::PER_PAGE))
+                ->with(request(self::WITH_RELATIONSHIP) ?? [])
+                ->paginate(request(self::PER_PAGE))
         );
     }
 
     public function store(array $data): array
     {
-        $definedPassword = $data['password'] ?? false;
-        $randomPassword = Carbon::now()->timestamp;
-        $data['password'] = bcrypt(!$definedPassword ? $randomPassword : $data['password']);
+        DB::beginTransaction();
 
-        $data['status'] = $definedPassword ? User::STATUS_ACTIVE : User::STATUS_PENDING_PASSWORD;
+        try {
+            $definedPassword = !!($data[User::PASSWORD] ?? false);
+            $randomPassword = Carbon::now()->timestamp;
+            $data[User::PASSWORD] = bcrypt(!$definedPassword ? $randomPassword : $data[User::PASSWORD]);
 
-        $data = self::prepareData($data, [
-            'expires_in' => fn ($value) => self::formatDatetimeToSave($value),
-        ]);
+            $data[User::STATUS] = $definedPassword ? UserStatusEnum::ACTIVE : UserStatusEnum::PENDING_PASSWORD;
 
-        /** @var User $user */
-        $user = User::query()->create($data);
+            /** @var User $user */
+            $user = User::query()->create($data);
 
-        if (!$definedPassword) {
-            $token = $user->createToken('Create password', [AbilitiesEnum::PASSWORD_SETTING]);
-            Mail::to($user->email)->send(new UserPasswordSettingMail($user, $token->plainTextToken));
+            if (!$definedPassword) {
+                $token = $user->createToken('Create password', [AbilitiesEnum::PASSWORD_SETTING]);
+                Mail::to($user->email)->send(new UserPasswordSettingMail($user, $token->plainTextToken));
+            }
+
+            DB::commit();
+
+            return self::buildReturn($user);
+        } catch (Throwable $exception) {
+            DB::rollBack();
+
+            Log::error('UserService: Failed to create user', [
+                'errorMessage' => $exception->getMessage(),
+            ]);
+
+            return self::buildReturn([
+                'message' => __('unexpected_error')
+            ], 500);
         }
-
-        return self::buildReturn($user);
     }
 
     public function update(User $user, array $data): array
     {
-        if (isset($data['email'])) {
-            /** @var User $userWithEmail */
-            $userWithEmail = UserRepository::searchFromEmail($data['email'])->first();
-
-            if ($userWithEmail && $userWithEmail->id !== $user->id) {
-                throw self::exception([
-                    'message' => 'E-mail já está em uso'
-                ]);
+        if (isset($data[User::PASSWORD]) && $data[User::PASSWORD]) {
+            $data[User::PASSWORD] = bcrypt($data[User::PASSWORD]);
+            if ($user->status === UserStatusEnum::PENDING_PASSWORD) {
+                $data[User::STATUS] = UserStatusEnum::ACTIVE;
             }
-        }
-
-        if ($data['password'] ?? false) {
-            $data['password'] = bcrypt($data['password']);
         } else {
-            unset($data['password']);
+            unset($data[User::PASSWORD]);
         }
 
-        $data = self::prepareData($data, [
-            'expires_in' => fn ($value) => self::formatDatetimeToSave($value),
-        ]);
+        $user->update($data);
 
+        return self::buildReturn($user);
+    }
+
+    public function updateStatus(User $user, array $data): array
+    {
         $user->update($data);
 
         return self::buildReturn($user);
@@ -213,37 +223,40 @@ class UserService extends Service
     public function forgotPassword(array $userData): array
     {
         /** @var User $user */
-        $user = UserRepository::searchFromEmail($userData['email'])->first();
+        $user = UserRepository::searchFromEmail($userData[User::EMAIL])->first();
 
-        if (!$user || !in_array($user->status, [User::STATUS_ACTIVE, User::STATUS_PENDING_PASSWORD])) {
+        if (
+            !$user ||
+            !in_array($user->status->value, [UserStatusEnum::ACTIVE->value, UserStatusEnum::PENDING_PASSWORD->value])
+        ) {
             throw self::exception([
-                'message' => 'Usuário não encontrado ou bloqueado'
+                'message' => __('user_not_found_or_blocked')
             ], 403);
         }
 
         $token = $user->createToken('Forgot password', [AbilitiesEnum::PASSWORD_SETTING]);
-        $user->status = User::STATUS_PENDING_PASSWORD;
-        $user->save();
+
+        $user->update([User::STATUS => UserStatusEnum::PENDING_PASSWORD]);
 
         Mail::to($user->email)->send(new UserPasswordSettingMail($user, $token->plainTextToken));
 
         return self::buildReturn();
     }
 
-    public function resetPassword(array $userData): array
+    public function passwordSetting(array $userData): array
     {
         /** @var User $user */
         $user = auth()->user();
 
-        if ($user->status !== User::STATUS_PENDING_PASSWORD) {
+        if ($user->status !== UserStatusEnum::PENDING_PASSWORD) {
             throw self::exception([
-                'message' => 'O status do usuário não permite a alteração de senha'
+                'message' => __('user_status_does_not_allow_password_change')
             ], 403);
         }
 
         $user->update([
-            'status' => User::STATUS_ACTIVE,
-            'password' => bcrypt($userData['password'])
+            User::STATUS => UserStatusEnum::ACTIVE,
+            User::PASSWORD => bcrypt($userData[User::PASSWORD])
         ]);
 
         return self::buildReturn([]);

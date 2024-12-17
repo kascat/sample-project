@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Users\Enums\UserRoleEnum;
+use Users\Enums\UserStatusEnum;
 
 /**
  * Class User
@@ -21,7 +22,7 @@ use Users\Enums\UserRoleEnum;
  * @property string|null     $email
  * @property string|null     $phone
  * @property UserRoleEnum    $role
- * @property string          $status
+ * @property UserStatusEnum  $status
  * @property Carbon|null     $email_verified_at
  * @property string          $password
  * @property Carbon|null     $expires_in
@@ -35,10 +36,6 @@ use Users\Enums\UserRoleEnum;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    const STATUS_PENDING_PASSWORD = 'pending_password';
-    const STATUS_ACTIVE = 'active';
-    const STATUS_BLOCKED = 'blocked';
 
     const ID = 'id';
     const PERMISSION_ID = 'permission_id';
@@ -75,6 +72,8 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        self::ROLE => UserRoleEnum::class,
+        self::STATUS => UserStatusEnum::class,
         self::EMAIL_VERIFIED_AT => 'datetime',
         self::EXPIRES_IN => 'datetime:d/m/Y H:i',
     ];

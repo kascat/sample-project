@@ -17,9 +17,9 @@
               :rules="[val => !!val || t('mandatory_completion')]"
             />
             <q-input
-              v-model="formData.whatsapp"
-              :label="t('whatsapp')"
-              :mask="formData.whatsapp?.length > 14 ? '(##) #####-####' : '(##) ####-#####'"
+              v-model="formData.phone"
+              :label="t('whatsapp_phone')"
+              :mask="formData.phone?.length > 14 ? '(##) #####-####' : '(##) ####-#####'"
               dense
               hide-bottom-space
             />

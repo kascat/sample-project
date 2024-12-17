@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('permission_id');
             $table->string('name');
             $table->string('email')->unique()->nullable();
-            $table->string('phone')->unique()->nullable();
+            $table->string('phone')->nullable();
             $table->string('role');
             $table->string('status');
             $table->timestamp('email_verified_at')->nullable();

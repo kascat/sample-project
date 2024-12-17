@@ -42,6 +42,7 @@
           color="grey-4"
           size="lg"
           class="absolute-left btn-toggle-mini"
+          style="width: 20px"
         >
           <q-tooltip>
             {{ t(leftDrawerMini ? 'expand' : 'collapse') }}
@@ -70,13 +71,13 @@
     </q-drawer>
 
     <q-page-container>
-      <!--<div v-if="true" class="q-pa-md">-->
-      <!--  <q-banner inline-actions rounded class="bg-primary text-white">-->
-      <!--    <div>-->
-      <!--      {{ t('example_message') }}-->
-      <!--    </div>-->
-      <!--  </q-banner>-->
-      <!--</div>-->
+      <div v-if="loggedUser.expires_in" class="q-pt-md q-px-md">
+        <q-banner inline-actions rounded class="bg-primary text-white">
+          <div>
+            {{ t('access_expiration_message', {date: formatIsoDateBr(loggedUser.expires_in)}) }}
+          </div>
+        </q-banner>
+      </div>
 
       <router-view/>
     </q-page-container>
@@ -89,6 +90,7 @@ import { computed, onMounted, ref } from 'vue';
 import { t } from 'src/services/utils/i18n';
 import DrawerMenuSimplex from 'src/layout_components/DrawerMenuSimplex';
 import UserMenu from 'src/layout_components/UserMenu';
+import { formatIsoDateBr } from 'src/services/utils/date';
 
 const showLeftDrawer = ref(false);
 const leftDrawerMini = ref(false);

@@ -10,7 +10,7 @@ Route::group([
     Route::post('register', [UserController::class, 'register']);
     Route::post('login', [UserController::class, 'login']);
     Route::post('forgot-password', [UserController::class, 'forgotPassword']);
-    Route::post('password-setting', [UserController::class, 'resetPassword'])
+    Route::post('password-setting', [UserController::class, 'passwordSetting'])
         ->middleware(['auth:user', AbilitiesEnum::requireAllAbilities([AbilitiesEnum::PASSWORD_SETTING])]);
 });
 
@@ -21,5 +21,7 @@ Route::group([
     Route::post('logout-all', [UserController::class, 'logoutAll']);
     Route::get('users/logged-user', [UserController::class, 'loggedUser']);
     Route::apiResource('users', UserController::class)
+        ->middleware(AbilitiesEnum::requireAllAbilities([AbilitiesEnum::USERS]));
+    Route::put('users/{id}/status', [UserController::class, 'status'])
         ->middleware(AbilitiesEnum::requireAllAbilities([AbilitiesEnum::USERS]));
 });

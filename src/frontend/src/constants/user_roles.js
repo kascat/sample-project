@@ -1,6 +1,6 @@
-export const API = 'api';
-export const ADMIN = 'admin';
-export const ACCOUNT_OWNER = 'account_owner';
+const API = 'api';
+const ADMIN = 'admin';
+const ACCOUNT_OWNER = 'account_owner';
 
 export const ROLES = {
   API,

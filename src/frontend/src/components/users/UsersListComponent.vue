@@ -1,6 +1,5 @@
 <template>
   <q-table
-    :title="t('users')"
     :rows="usersData"
     :columns="columns"
     row-key="id"
@@ -14,24 +13,7 @@
   >
     <template v-slot:top>
       <div class="full-width">
-        <div class="row">
-          <div class="col">
-            <h6 class="q-mt-none q-mb-none text-weight-regular">
-              {{ t('users') }}
-            </h6>
-          </div>
-          <div class="col">
-            <q-btn
-              icon="add"
-              class="float-right"
-              :label="t('register')"
-              color="primary"
-              outline
-              :to="{ name: 'users_create' }"
-            />
-          </div>
-        </div>
-        <div class="row q-mt-md q-col-gutter-md">
+        <div class="row q-pt-sm q-col-gutter-md">
           <q-input
             v-model="mainPagination.name"
             :label="t('name')"
@@ -85,7 +67,7 @@
         <q-item class="q-pa-none">
           <q-item-section>
             <q-item-label>{{ t(`user.role.${props.row.role}`) }}</q-item-label>
-            <q-item-label caption>{{ formatDatetimeBR(props.row.created_at) }}</q-item-label>
+            <q-item-label caption>{{ props.row.phone }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-td>
@@ -93,11 +75,19 @@
 
     <template v-slot:body-cell-status="props">
       <q-td key="status" :props="props">
-        <q-chip
-          text-color="white"
-          :label="t(`user.status.${props.row.status}`)"
-          :color="props.row.status === 'pending_password' ? 'warning' : props.row.status === 'active' ? 'positive' : 'negative'"
-        />
+        <q-item class="q-pa-none">
+          <q-item-section>
+            <q-item-label>
+              <q-chip
+                text-color="white"
+                dense
+                :label="t(`user.status.${props.row.status}`)"
+                :color="USER_STATUS_COLOR[props.row.status]"
+              />
+            </q-item-label>
+            <q-item-label caption>{{ props.row.expires_in || (props.row.login_time && tc('x_minutes', props.row.login_time)) }}</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-td>
     </template>
 
@@ -107,10 +97,11 @@
           <q-btn
             v-if="loggedUser.id !== props.row.id"
             outline
-            :color="userIsBlocked(props.row) ? 'positive' : 'negative'"
+            :color="userIsBlocked(props.row) ? 'positive' : 'deep-orange'"
             :icon="userIsBlocked(props.row) ? 'check' : 'close'"
+            :loading="changingStatusId === props.row.id"
+            :disable="changingStatusId === props.row.id"
             @click="changeStatus(props.row)"
-            :loading="changingStatus"
           >
             <q-tooltip>
               {{ userIsBlocked(props.row) ? t('activate') : t('block') }}
@@ -148,16 +139,16 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { loggedUser } from 'src/boot/user';
-import { getUsers, destroyUser, updateUser } from 'src/services/user/user-api';
-import { t } from 'src/services/utils/i18n';
+import { getUsers, destroyUser, changeUserStatus } from 'src/services/user/user-api';
+import { t, tc } from 'src/services/utils/i18n';
 import { Notify, Dialog } from 'quasar';
 import { ROLES } from 'src/constants/user_roles';
-import { formatDatetimeBR } from 'src/services/utils/date';
+import { USER_STATUS, USER_STATUS_COLOR } from 'src/constants/user_status';
 
 const usersData = ref([]);
 const loading = ref(false);
 const removingId = ref(null);
-const changingStatus = ref(false);
+const changingStatusId = ref(null);
 
 const rolesOptions = Object.values(ROLES).map((role) => ({
   label: t(`user.role.${role}`),
@@ -173,20 +164,20 @@ const mainPagination = ref({
 const columns = [
   {
     name: 'user',
-    label: t('name'),
+    label: t('name_email'),
     align: 'left',
     field: 'name',
   },
   {
     name: 'role',
-    label: t('role'),
+    label: t('role_phone'),
     align: 'left',
     field: 'role',
     format: val => t(`user.role.${val}`),
   },
   {
     name: 'status',
-    label: t('status'),
+    label: t('status_access'),
     align: 'left',
     field: 'status',
     format: val => t(`user.status.${val}`),
@@ -219,7 +210,8 @@ async function fetchUsers(props) {
 }
 
 function userIsBlocked(user) {
-  return [ 'blocked' ].includes(user.status);
+  // TODO: usar constante
+  return [ USER_STATUS.blocked ].includes(user.status);
 }
 
 function changeStatus(user) {
@@ -228,9 +220,10 @@ function changeStatus(user) {
     message: t('confirm_this_action'),
     cancel: true,
   }).onOk(async () => {
-    changingStatus.value = true;
+    changingStatusId.value = user.id;
+
     try {
-      await updateUser(user.id, { status: userIsBlocked(user) ? 'active' : 'blocked' });
+      await changeUserStatus(user.id, { status: userIsBlocked(user) ? USER_STATUS.active : USER_STATUS.blocked });
       fetchUsers();
 
       Notify.create({
@@ -243,7 +236,8 @@ function changeStatus(user) {
         type: 'negative',
       });
     }
-    changingStatus.value = false;
+
+    changingStatusId.value = null;
   });
 }
 
