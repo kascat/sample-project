@@ -7,7 +7,7 @@ use Permissions\PermissionController;
 Route::group([
     'middleware' => ['api', 'auth:user', 'user_checker']
 ], function () {
-    Route::get('permissions/all-permission', [PermissionController::class, 'allPermissions']);
+    Route::get('abilities', [PermissionController::class, 'abilities']);
     Route::apiResource('permissions', PermissionController::class)
         ->middleware(AbilitiesEnum::requireAllAbilities([AbilitiesEnum::PERMISSIONS]));
 });

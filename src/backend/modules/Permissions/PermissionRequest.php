@@ -12,7 +12,7 @@ class PermissionRequest extends Request
     public function validateToIndex(): array
     {
         return [
-            Permission::NAME => 'nullable|string',
+            Permission::NAME => ['nullable', 'string'],
         ];
     }
 

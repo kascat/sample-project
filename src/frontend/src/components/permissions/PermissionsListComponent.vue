@@ -1,6 +1,5 @@
 <template>
   <q-table
-    :title="t('permissions_label')"
     :rows="permissionsData"
     :columns="columns"
     row-key="id"
@@ -10,17 +9,24 @@
     :no-results-label="t('no_results')"
     :no-data-label="t('no_results')"
     binary-state-sort
-    @request="getPermissionsFunction"
+    @request="fetchPermissions"
   >
-    <template v-slot:top-right>
-      <q-btn
-        icon="add"
-        :label="t('register')"
-        color="primary"
-        outline
-        :to="{ name: 'permissions_create' }"
-      />
+    <template v-slot:top>
+      <div class="full-width">
+        <div class="row q-pt-sm q-col-gutter-md">
+          <q-input
+            v-model="mainPagination.name"
+            :label="t('name')"
+            class="col-xs-12 col-md-4"
+            outlined
+            dense
+            debounce="500"
+            @update:model-value="fetchPermissions()"
+          />
+        </div>
+      </div>
     </template>
+
     <template v-slot:body-cell-actions="props">
       <q-td key="actions" :props="props">
         <q-btn-group outline>
@@ -82,6 +88,13 @@ const columns = [
     },
   },
   {
+    name: 'abilities',
+    label: t('permissions_label'),
+    align: 'left',
+    field: 'abilities',
+    format: val => val?.length || 0,
+  },
+  {
     name: 'actions',
     align: 'center',
     label: t('actions'),
@@ -91,10 +104,10 @@ const columns = [
 ];
 
 onMounted(async () => {
-  await getPermissionsFunction();
+  await fetchPermissions();
 });
 
-async function getPermissionsFunction(props) {
+async function fetchPermissions(props) {
   loading.value = true;
   try {
     mainPagination.value = props?.pagination || mainPagination.value;
@@ -117,7 +130,7 @@ async function destroyPermissionFunction(id) {
     removingId.value = id;
     try {
       await destroyPermission(id);
-      getPermissionsFunction();
+      fetchPermissions();
 
       Notify.create({
         message: t('removed_successfully'),

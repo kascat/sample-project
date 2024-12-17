@@ -50,7 +50,7 @@ class PermissionController extends Controller
         return response($result['response'], $result['status']);
     }
 
-    public function allPermissions (): mixed
+    public function abilities (): mixed
     {
         return response(AbilitiesEnum::availableAbilities());
     }

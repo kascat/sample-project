@@ -26,7 +26,7 @@ export const destroyPermission = async id => {
   await destroy(`/permissions/${id}`);
 };
 
-export const getAllPermission = async () => {
-  const { data } = await get('/permissions/all-permission');
+export const getAbilities = async () => {
+  const { data } = await get('/abilities');
   return data;
 };
